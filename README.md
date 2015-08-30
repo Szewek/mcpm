@@ -1,6 +1,8 @@
 # mcpm – Minecraft Package Manager
 `mcpm` is a package manager for mods, saves and resource packs. It's written in Go.
 
+This repository IS NOT related to [mcpm/mcpm](https://github.com/mcpm/mcpm).
+
 ## How this will work?
 `mcpm` will use Curse CDN to gather information about everything Minecraft-related. So everything downloadable in Curse is also available in `mcpm`.
 
