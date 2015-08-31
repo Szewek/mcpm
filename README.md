@@ -1,4 +1,6 @@
 # mcpm – Minecraft Package Manager
+[![Build Status](https://travis-ci.org/Szewek/mcpm.svg?branch=master)](https://travis-ci.org/Szewek/mcpm)
+
 `mcpm` is a package manager for mods, saves and resource packs. It's written in Go.
 
 This repository IS NOT related to [mcpm/mcpm](https://github.com/mcpm/mcpm).
