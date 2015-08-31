@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func Must(e error) {
+func must(e error) {
 	if e != nil {
 		panic(e)
 	}

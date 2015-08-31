@@ -6,39 +6,39 @@ import (
 )
 
 type (
-	FileElement struct {
-		Id      int
+	_FileElement struct {
+		ID      int
 		Version string
 	}
-	DataElement struct {
-		Id                         int
+	_DataElement struct {
+		ID                         int
 		Type                       PackageType
 		PkgName, Name, Description string
 		Authors                    []string
-		Versions                   []FileElement
+		Versions                   []_FileElement
 	}
-	Database struct {
+	_Database struct {
 		Version    int
 		LastUpdate time.Time
-		Data       map[int]DataElement
+		Data       map[int]_DataElement
 	}
 )
 
-func (db *Database) Save(file string) error {
+func (db *_Database) Save(file string) error {
 	return writeGobGzip(file, db)
 }
 
-func createDatabase() *Database {
-	return &Database{1, time.Now(), map[int]DataElement{}}
+func createDatabase() *_Database {
+	return &_Database{1, time.Now(), map[int]_DataElement{}}
 }
-func readDatabaseFromFile(file string) (*Database, error) {
-	var db Database
+func readDatabaseFromFile(file string) (*_Database, error) {
+	var db _Database
 	er := readGobGzip(file, &db)
 	return &db, er
 }
 
 func init() {
-	gob.Register(FileElement{})
-	gob.Register(DataElement{})
-	gob.Register(Database{})
+	gob.Register(_FileElement{})
+	gob.Register(_DataElement{})
+	gob.Register(_Database{})
 }
