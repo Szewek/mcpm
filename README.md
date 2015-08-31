@@ -8,14 +8,26 @@ This repository IS NOT related to [mcpm/mcpm](https://github.com/mcpm/mcpm).
 
 Package name comes from its curse.com URL. For example: /mc-mods/minecraft/**`tinkers-construct`**
 
-## Examples
+## Installation (requires [Go](https://golang.org/) to compile)
+```
+go get github.com/Szewek/mcpm
+```
+
+Make sure you have set GOPATH/bin in PATH environment variable.
+
+For first time you need to update database.
+```
+mcpm update
+```
+
+## Use examples
 Command | Status | Description
 --------|--------|------------
-`mcpm get tinkers-construct` | Not implemented | Downloads the newest version of [Tinkers' Construct](http://www.curse.com/mc-mods/minecraft/tinkers-construct) and puts in "mods" folder where this command was executed
+`mcpm get tinkers-construct` | Working | Downloads the newest version of [Tinkers' Construct](http://www.curse.com/mc-mods/minecraft/tinkers-construct) and puts in "mods" folder where this command was executed
 `mcpm get tinkers-construct --for 1.7.10` | Not implemented | Downloads the latest version of that mod for Minecraft 1.7.10
 `mcpm get tinkers-construct -d` | Not implemented | Only downloads that mod
 `mcpm search Tinkers` | Not implemented | Searches database for packages containing word "Tinkers" in package name, title and description
-`mcpm update` | Not implemented | Updates database
+`mcpm update` | Working | Updates database
 `mcpm update -f` | Not implemented | Forces to update whole database
 `mcpm forge` | Not implemented | Installs Minecraft Forge (recommended version)
 `mcpm forge --latest` | Not implemented | Installs the latest version of Minecraft Forge

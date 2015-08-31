@@ -10,6 +10,7 @@ var (
 	flagset     = flag.NewFlagSet("", flag.ExitOnError)
 	forceUpdate bool
 	modes       = map[string]func(){
+		"get":    getPackage,
 		"update": updateCache,
 	}
 )
