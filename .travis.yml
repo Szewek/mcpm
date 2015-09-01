@@ -2,7 +2,10 @@ language: go
 
 go:
  - 1.5
+env:
+ global:
+  - MCPM_VERSION=0.1.0
 after_script:
  - go get -v github.com/laher/goxc
  - goxc -bc "linux,!arm windows" -pv=test-build-${TRAVIS_BUILD_ID}
- - ls $GOPATH/bin/mcpm-xc
+ - ls $GOPATH/bin/mcpm-xc/test-build-${TRAVIS_BUILD_ID}
