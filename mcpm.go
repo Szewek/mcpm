@@ -13,6 +13,7 @@ var (
 		"get":    getPackage,
 		"update": updateCache,
 	}
+	// homeDir = "."
 )
 
 func main() {
@@ -36,6 +37,8 @@ func main() {
 		flagset.Parse(os.Args[2:])
 	}
 	if f, ok := modes[mode]; ok {
+		// u, _ := user.Current()
+		// homeDir = u.HomeDir
 		f()
 	} else {
 		flagset.Usage()
