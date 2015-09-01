@@ -4,5 +4,5 @@ go:
  - 1.5
 after_script:
  - go get -v github.com/laher/goxc
- - goxc
+ - goxc -bc "linux,!arm windows" -pv=test-build-${TRAVIS_BUILD_ID}
  - ls .
