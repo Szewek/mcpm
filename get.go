@@ -17,16 +17,22 @@ const (
 // TODO Get version from http://minecraft.curseforge.com/mc-mods/<id>-<pkgname>/files/<fileid>/download
 func getPackage() {
 	pkgn := flagset.Arg(0)
-	pn, pne := readPackageNamesFromFile(pnFile)
+	pn, pne := readPackageNamesFromFile(homePath(pnFile))
 	must(pne)
-	db, dbe := readDatabaseFromFile(dbFile)
+	db, dbe := readDatabaseFromFile(homePath(dbFile))
 	must(dbe)
 	if pid, ok := (*pn)[pkgn]; ok {
-		data := db.Data[pid]
+		data := (*db)[pid]
 		download := fmt.Sprintf("http://minecraft.curseforge.com/mc-mods/%d-%s/files/latest", pid, data.PkgName)
+		if verbose {
+			fmt.Printf("Checking URL %#v\n", download)
+		}
 		ht, hte := http.Get(download)
 		must(hte)
 		defer ht.Body.Close()
+		if verbose {
+			fmt.Printf("Found file URL: %#v\n", ht.Request.URL.String())
+		}
 		fname := ht.Request.URL.Path
 		fname = fname[strings.LastIndex(fname, "/")+1:]
 		fmt.Printf("Do you want to download package %#v? [y|N]", fname)
@@ -55,9 +61,7 @@ func getPackage() {
 		default:
 			dir = "."
 		}
-		if _, der := os.Stat(dir); os.IsNotExist(der) {
-			must(os.Mkdir(dir, 438))
-		}
+		mkDirIfNotExist(dir)
 		save := fmt.Sprintf("%s/%s", dir, fname)
 		fmt.Printf("Saving \"%s\"...\n", save)
 		f, fe := os.OpenFile(save, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 438)
@@ -66,6 +70,9 @@ func getPackage() {
 		must(ce)
 		fmt.Printf("Successfully saved to \"%s\"", save)
 	} else {
+		if verbose {
+			fmt.Printf("Package %#v not found.\n", pkgn)
+		}
 		fmt.Println("What is that package?")
 	}
 }

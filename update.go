@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type (
@@ -95,20 +96,19 @@ type (
 
 func updateCache() {
 	// http://clientupdate-v6.cursecdn.com/feed/addons/432/v10/{complete,hourly,daily,weekly}.json.bz2.txt
+	fmt.Println("Downloading database...")
 	resp, hte := http.Get("http://clientupdate-v6.cursecdn.com/feed/addons/432/v10/complete.json.bz2")
 	defer resp.Body.Close()
-	if hte != nil {
-		panic(hte)
+	must(hte)
+	if verbose {
+		fmt.Printf("Bzipped JSON size: %s\n", fileSize(resp.ContentLength))
 	}
-	fmt.Printf("BZIP size: %d\n", resp.ContentLength)
 	bz := bzip2.NewReader(resp.Body)
 	js := json.NewDecoder(bz)
 	var jr _Response
 	jer := js.Decode(&jr)
-	if jer != nil {
-		panic(jer)
-	}
-	db := createDatabase()
+	must(jer)
+	db := &_Database{}
 	pn := &_PackageNames{}
 	i := 0
 	for ; i < len(jr.Data); i++ {
@@ -119,6 +119,9 @@ func updateCache() {
 			pkgn = mod.WebSiteURL[indx:]
 		} else {
 			pkgn = fmt.Sprintf("--%d", mod.Id)
+			if verbose {
+				fmt.Printf("Found unknown package: %#v; Naming it %#v", mod.WebSiteURL, pkgn)
+			}
 		}
 		sid := fmt.Sprint(mod.Id)
 		idix := strings.Index(pkgn, sid)
@@ -135,11 +138,11 @@ func updateCache() {
 			versions = append(versions, _FileElement{fi.ProjectFileID, fi.GameVersion})
 		}
 		(*pn)[pkgn] = mod.Id
-		db.Data[mod.Id] = _DataElement{mod.Id, PackageType(mod.PackageType), pkgn, mod.Name, mod.Summary, authors, versions}
+		(*db)[mod.Id] = _DataElement{mod.Id, PackageType(mod.PackageType), pkgn, mod.Name, mod.Summary, authors, versions}
 	}
-	fmt.Printf("Packages added: %d\nSaving...\n", i)
-	db.Save(dbFile)
-	pn.Save(pnFile)
-	writeGob(luFile, db.LastUpdate)
+	fmt.Printf("Packages count: %d\nSaving...\n", i)
+	db.Save(homePath(dbFile))
+	pn.Save(homePath(pnFile))
+	writeGob(homePath(luFile), time.Now())
 	fmt.Println("Database updated.")
 }

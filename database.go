@@ -1,9 +1,6 @@
 package main
 
-import (
-	"encoding/gob"
-	"time"
-)
+import "encoding/gob"
 
 type (
 	_FileElement struct {
@@ -17,20 +14,13 @@ type (
 		Authors                    []string
 		Versions                   []_FileElement
 	}
-	_Database struct {
-		Version    int
-		LastUpdate time.Time
-		Data       map[int]_DataElement
-	}
+	_Database map[int]_DataElement
 )
 
 func (db *_Database) Save(file string) error {
 	return writeGobGzip(file, db)
 }
 
-func createDatabase() *_Database {
-	return &_Database{1, time.Now(), map[int]_DataElement{}}
-}
 func readDatabaseFromFile(file string) (*_Database, error) {
 	var db _Database
 	er := readGobGzip(file, &db)

@@ -4,17 +4,25 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/user"
 )
 
 var (
-	flagset     = flag.NewFlagSet("", flag.ExitOnError)
-	forceUpdate bool
-	modes       = map[string]func(){
+	flagset = flag.NewFlagSet("", flag.ExitOnError)
+	verbose bool
+	modes   = map[string]func(){
 		"get":    getPackage,
 		"update": updateCache,
 	}
-	// homeDir = "."
+	homeDir = "."
 )
+
+func checkHomeDir() {
+	u, ue := user.Current()
+	must(ue)
+	homeDir = fmt.Sprintf("%s/.mcpm", u.HomeDir)
+	must(mkDirIfNotExist(homeDir))
+}
 
 func main() {
 	var mode string
@@ -32,13 +40,12 @@ func main() {
 		fmt.Fprintln(os.Stderr, "\nAvailable options: ")
 		flagset.PrintDefaults()
 	}
-	flagset.BoolVar(&forceUpdate, "f", false, "Forces update")
+	flagset.BoolVar(&verbose, "v", false, "Verbose (WIP)")
 	if len(os.Args) >= 3 {
 		flagset.Parse(os.Args[2:])
 	}
 	if f, ok := modes[mode]; ok {
-		// u, _ := user.Current()
-		// homeDir = u.HomeDir
+		checkHomeDir()
 		f()
 	} else {
 		flagset.Usage()
