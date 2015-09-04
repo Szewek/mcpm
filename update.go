@@ -138,7 +138,7 @@ func updateCache() {
 			versions = append(versions, _FileElement{fi.ProjectFileID, fi.GameVersion})
 		}
 		(*pn)[pkgn] = mod.Id
-		(*db)[mod.Id] = _DataElement{mod.Id, PackageType(mod.PackageType), pkgn, mod.Name, mod.Summary, authors, versions}
+		(*db)[mod.Id] = _DataElement{mod.Id, _PackageType(mod.PackageType), pkgn, mod.Name, mod.Summary, authors, versions}
 	}
 	fmt.Printf("Packages count: %d\nSaving...\n", i)
 	db.Save(homePath(dbFile))

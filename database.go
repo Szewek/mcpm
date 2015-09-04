@@ -9,7 +9,7 @@ type (
 	}
 	_DataElement struct {
 		ID                         int
-		Type                       PackageType
+		Type                       _PackageType
 		PkgName, Name, Description string
 		Authors                    []string
 		Versions                   []_FileElement

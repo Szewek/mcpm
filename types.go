@@ -1,12 +1,12 @@
 package main
 
 type (
-	PackageType int
+	_PackageType int
 )
 
 const (
-	type_WorldSave    PackageType = 1 // World save
-	type_ResourcePack PackageType = 3 // Resource pack
-	type_ModPack      PackageType = 5 // Mod pack
-	type_Mod          PackageType = 6 // Mod
+	type_WorldSave    _PackageType = 1 // World save
+	type_ResourcePack _PackageType = 3 // Resource pack
+	type_ModPack      _PackageType = 5 // Mod pack
+	type_Mod          _PackageType = 6 // Mod
 )

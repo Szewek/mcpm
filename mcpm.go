@@ -12,6 +12,7 @@ var (
 	verbose bool
 	modes   = map[string]func(){
 		"get":    getPackage,
+		"search": searchPackage,
 		"update": updateCache,
 	}
 	homeDir = "."

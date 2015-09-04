@@ -1,10 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"compress/gzip"
 	"encoding/gob"
 	"fmt"
 	"os"
+	"os/exec"
+	"strings"
 )
 
 const (
@@ -37,6 +40,38 @@ func fileSize(size int64) string {
 		return fmt.Sprintf("%.3f B", s)
 	}
 	return fmt.Sprintf("%.3f %cB", s, fsizes[i])
+}
+func findJava() error {
+	cmd := exec.Command("java", "-version")
+	var out bytes.Buffer
+	cmd.Stderr = &out
+	cer := cmd.Run()
+	if cer != nil {
+		return cer
+	}
+	s := out.String()
+	sst, sen := strings.Index(s, "version"), strings.IndexRune(s, '\n')
+	if sst < 0 || sen < sst+8 {
+		fmt.Println("Java found but can't get version")
+	}
+	fmt.Printf("JAVA: %s\n", strings.TrimSpace(s[sst+8:sen]))
+	return nil
+}
+func findGo() error {
+	cmd := exec.Command("go", "version")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	cer := cmd.Run()
+	if cer != nil {
+		return cer
+	}
+	s := out.String()
+	sst, sen := strings.Index(s, "version"), strings.IndexRune(s, '\n')
+	if sst < 0 || sen < sst+8 {
+		fmt.Println("Go found but can't get version")
+	}
+	fmt.Printf("GO: %s\n", strings.TrimSpace(s[sst+8:sen]))
+	return nil
 }
 func readGob(file string, v interface{}) error {
 	f, fe := os.OpenFile(file, os.O_RDONLY, 0)
