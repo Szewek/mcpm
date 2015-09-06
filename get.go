@@ -3,24 +3,13 @@ package main
 import (
 	"fmt"
 	"io"
-	"net/http"
 	"os"
-	"strings"
 )
 
 const (
 	dbFile = ".mcpmdb"
 	pnFile = ".mcpmpn"
 	luFile = ".mcpmlu"
-)
-
-var (
-	pkgURLDirs = map[_PackageType]string{
-		type_Mod:          "mc-mods",
-		type_ModPack:      "modpacks",
-		type_ResourcePack: "texture-packs",
-		type_WorldSave:    "worlds",
-	}
 )
 
 // TODO Get version from http://minecraft.curseforge.com/<type>/<id>-<pkgname>/files/<fileid>/download
@@ -32,19 +21,10 @@ func getPackage() {
 	must(dbe)
 	if pid, ok := (*pn)[pkgn]; ok {
 		data := (*db)[pid]
-		download := fmt.Sprintf("http://minecraft.curseforge.com/%s/%d-%s/files/latest", pkgURLDirs[data.Type], pid, data.PkgName)
-		if verbose {
-			fmt.Printf("Checking URL %#v\n", download)
-		}
-		ht, hte := http.Get(download)
+		fn, pr, hte := downloadPackage(&data, -1)
 		must(hte)
-		defer ht.Body.Close()
-		if verbose {
-			fmt.Printf("Found file URL: %#v\n", ht.Request.URL.String())
-		}
-		fname := ht.Request.URL.Path
-		fname = fname[strings.LastIndex(fname, "/")+1:]
-		fmt.Printf("Do you want to download package %#v? [y|N]", fname)
+		defer pr.Close()
+		fmt.Printf("Do you want to download package %#v? [y|N]", fn)
 		r := []byte{}
 		_, se := fmt.Scanln(&r)
 		must(se)
@@ -71,12 +51,11 @@ func getPackage() {
 			dir = "."
 		}
 		mkDirIfNotExist(dir)
-		save := fmt.Sprintf("%s/%s", dir, fname)
+		save := fmt.Sprintf("%s/%s", dir, fn)
 		fmt.Printf("Saving \"%s\"...\n", save)
 		f, fe := os.OpenFile(save, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 438)
 		must(fe)
-		lr := newProgressReader(ht.Body, ht.ContentLength)
-		_, ce := io.Copy(f, lr)
+		_, ce := io.Copy(f, pr)
 		must(ce)
 		fmt.Printf("Successfully saved to \"%s\"", save)
 	} else {
@@ -86,3 +65,6 @@ func getPackage() {
 		fmt.Println("What is that package?")
 	}
 }
+
+// TODO Downloading Forge
+func getForge() {}

@@ -103,8 +103,8 @@ func updateCache() {
 	if verbose {
 		fmt.Printf("Bzipped JSON size: %s\n", fileSize(resp.ContentLength))
 	}
-	lr := newProgressReader(resp.Body, resp.ContentLength)
-	bz := bzip2.NewReader(lr)
+	pr := newProgressReader(resp.Body, resp.ContentLength)
+	bz := bzip2.NewReader(pr)
 	js := json.NewDecoder(bz)
 	var jr _Response
 	jer := js.Decode(&jr)
@@ -147,3 +147,6 @@ func updateCache() {
 	writeGob(homePath(luFile), time.Now())
 	fmt.Println("Database updated.")
 }
+
+// TODO Updating Forge versions' cache
+func updateForgeCache() {}

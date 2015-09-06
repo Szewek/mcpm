@@ -6,6 +6,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"os/exec"
 	"strings"
@@ -25,10 +26,19 @@ type (
 	}
 )
 
-func (lr *_ProgressReader) Read(p []byte) (n int, err error) {
-	n, err = lr.r.Read(p)
-	lr.cnt += int64(n)
-	ld := float64(lr.cnt) / float64(lr.tot)
+var (
+	pkgURLDirs = map[_PackageType]string{
+		type_Mod:          "mc-mods",
+		type_ModPack:      "modpacks",
+		type_ResourcePack: "texture-packs",
+		type_WorldSave:    "worlds",
+	}
+)
+
+func (pr *_ProgressReader) Read(p []byte) (n int, err error) {
+	n, err = pr.r.Read(p)
+	pr.cnt += int64(n)
+	ld := float64(pr.cnt) / float64(pr.tot)
 	ldi := int(ld * 10.0)
 	var f string
 	if f = "\r"; ld >= 1.0 {
@@ -36,6 +46,12 @@ func (lr *_ProgressReader) Read(p []byte) (n int, err error) {
 	}
 	fmt.Printf("[%s%s] %.2f%%    %s", loadBarFilled[0:ldi], loadBarEmpty[ldi:10], ld*100.0, f)
 	return
+}
+func (pr *_ProgressReader) Close() error {
+	if rc := pr.r.(io.Closer); rc != nil {
+		return rc.Close()
+	}
+	return nil
 }
 func newProgressReader(r io.Reader, tot int64) *_ProgressReader {
 	return &_ProgressReader{r, 0, tot}
@@ -98,6 +114,28 @@ func findGo() error {
 	}
 	fmt.Printf("GO: %s\n", strings.TrimSpace(s[sst+8:sen]))
 	return nil
+}
+func downloadPackage(dt *_DataElement, fid int) (string, *_ProgressReader, error) {
+	us := fmt.Sprintf("http://minecraft.curseforge.com/%s/%d-%s/files/", pkgURLDirs[dt.Type], dt.ID, dt.PkgName)
+	var us2 string
+	if us2 = "latest"; fid != -1 {
+		us2 = fmt.Sprintf("%d/download", fid)
+	}
+	download := fmt.Sprint(us, us2)
+	if verbose {
+		fmt.Printf("Checking URL %#v\n", download)
+	}
+	ht, hte := http.Get(download)
+	if hte != nil {
+		return "", nil, hte
+	}
+	if verbose {
+		fmt.Printf("Found file URL: %#v\n", ht.Request.URL.String())
+	}
+	fname := ht.Request.URL.Path
+	fname = fname[strings.LastIndex(fname, "/")+1:]
+	pr := newProgressReader(ht.Body, ht.ContentLength)
+	return fname, pr, nil
 }
 func readGob(file string, v interface{}) error {
 	f, fe := os.OpenFile(file, os.O_RDONLY, 0)
