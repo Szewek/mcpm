@@ -1,11 +1,11 @@
 # mcpm – Minecraft Package Manager
 [![Build Status](https://travis-ci.org/Szewek/mcpm.svg?branch=master)](https://travis-ci.org/Szewek/mcpm)
 
-`mcpm` is a package manager for mods, saves and resource packs. It's written in Go.
+`mcpm` is a package manager that lets you manage mods, saves and resource packs. It's written in Go.
 
 This repository IS NOT related to [mcpm/mcpm](https://github.com/mcpm/mcpm).
 
-## How this works?
+## How does this work?
 `mcpm` uses Curse CDN to gather information about everything Minecraft-related. So everything downloadable in Curse is also available in `mcpm`.
 
 Package name comes from its curse.com URL. For example: /mc-mods/minecraft/**`tinkers-construct`**
@@ -35,6 +35,7 @@ Command | Status | Description
 `mcpm authors` | Not implemented | Shows a list of all mcpm contributors
 `mcpm authors tinkers-construct` | Not implemented | Shows mod authors
 `mcpm make-server` | Not implemented | Downloads and installs Minecraft server instance (with Forge)
+`mcpm list` | Not implemented | Lists all package names
 
 ## Contributing
 You can submit bugs and requests. You are also allowed to modify this source code (fork it first, then create pull request).
@@ -43,6 +44,7 @@ You can submit bugs and requests. You are also allowed to modify this source cod
 - [x] Caching database
 - [x] Getting package by unique name
 - [ ] Getting package for appropriate version of Minecraft
+- [ ] Unpacking modpacks
 - [ ] Creating modpacks
 - [ ] Creating server and client instances
 - [ ] Getting mods' source code
