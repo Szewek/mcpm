@@ -103,7 +103,8 @@ func updateCache() {
 	if verbose {
 		fmt.Printf("Bzipped JSON size: %s\n", fileSize(resp.ContentLength))
 	}
-	bz := bzip2.NewReader(resp.Body)
+	lr := newProgressReader(resp.Body, resp.ContentLength)
+	bz := bzip2.NewReader(lr)
 	js := json.NewDecoder(bz)
 	var jr _Response
 	jer := js.Decode(&jr)

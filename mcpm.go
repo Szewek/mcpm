@@ -8,9 +8,10 @@ import (
 )
 
 var (
-	flagset = flag.NewFlagSet("", flag.ExitOnError)
-	verbose bool
-	modes   = map[string]func(){
+	flagset   = flag.NewFlagSet("", flag.ExitOnError)
+	verbose   bool
+	mcVersion string
+	modes     = map[string]func(){
 		"get":    getPackage,
 		"search": searchPackage,
 		"update": updateCache,
@@ -42,6 +43,7 @@ func main() {
 		flagset.PrintDefaults()
 	}
 	flagset.BoolVar(&verbose, "v", false, "Verbose (WIP)")
+	flagset.StringVar(&mcVersion, "for", "", "Specifies Minecraft version")
 	if len(os.Args) >= 3 {
 		flagset.Parse(os.Args[2:])
 	}

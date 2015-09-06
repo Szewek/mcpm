@@ -5,15 +5,41 @@ import (
 	"compress/gzip"
 	"encoding/gob"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
 )
 
 const (
-	fsizes = "kMGTP"
-	errLog = "AN ERROR OCURRED!\n\n=== Go representation of that error ===\n%#v\n\n=== Error message ===\n%s\n-----\n"
+	fsizes        = "kMGTP"
+	errLog        = "AN ERROR OCURRED!\n\n=== Go representation of that error ===\n%#v\n\n=== Error message ===\n%s\n-----\n"
+	loadBarEmpty  = "          "
+	loadBarFilled = "=========="
 )
+
+type (
+	_ProgressReader struct {
+		r        io.Reader
+		cnt, tot int64
+	}
+)
+
+func (lr *_ProgressReader) Read(p []byte) (n int, err error) {
+	n, err = lr.r.Read(p)
+	lr.cnt += int64(n)
+	ld := float64(lr.cnt) / float64(lr.tot)
+	ldi := int(ld * 10.0)
+	var f string
+	if f = "\r"; ld >= 1.0 {
+		f = "\n"
+	}
+	fmt.Printf("[%s%s] %.2f%%    %s", loadBarFilled[0:ldi], loadBarEmpty[ldi:10], ld*100.0, f)
+	return
+}
+func newProgressReader(r io.Reader, tot int64) *_ProgressReader {
+	return &_ProgressReader{r, 0, tot}
+}
 
 func must(e error) {
 	if e != nil {

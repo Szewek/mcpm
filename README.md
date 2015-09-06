@@ -26,7 +26,7 @@ mcpm update
 Command | Status | Description
 --------|--------|------------
 `mcpm get tinkers-construct` | Working | Downloads the newest version of [Tinkers' Construct](http://www.curse.com/mc-mods/minecraft/tinkers-construct) and puts in "mods" folder where this command was executed
-`mcpm get tinkers-construct --for 1.7.10` | Not implemented | Downloads the latest version of that mod for Minecraft 1.7.10
+`mcpm get tinkers-construct -for 1.7.10` | Not implemented | Downloads the latest version of that mod for Minecraft 1.7.10
 `mcpm get tinkers-construct -d` | Not implemented | Only downloads that mod (does not put into subfolder)
 `mcpm search Tinkers` | Working | Searches database for packages containing word "Tinkers" in package name, title and description
 `mcpm update` | Working | Updates database

@@ -14,7 +14,16 @@ const (
 	luFile = ".mcpmlu"
 )
 
-// TODO Get version from http://minecraft.curseforge.com/mc-mods/<id>-<pkgname>/files/<fileid>/download
+var (
+	pkgURLDirs = map[_PackageType]string{
+		type_Mod:          "mc-mods",
+		type_ModPack:      "modpacks",
+		type_ResourcePack: "texture-packs",
+		type_WorldSave:    "worlds",
+	}
+)
+
+// TODO Get version from http://minecraft.curseforge.com/<type>/<id>-<pkgname>/files/<fileid>/download
 func getPackage() {
 	pkgn := flagset.Arg(0)
 	pn, pne := readPackageNamesFromFile(homePath(pnFile))
@@ -23,7 +32,7 @@ func getPackage() {
 	must(dbe)
 	if pid, ok := (*pn)[pkgn]; ok {
 		data := (*db)[pid]
-		download := fmt.Sprintf("http://minecraft.curseforge.com/mc-mods/%d-%s/files/latest", pid, data.PkgName)
+		download := fmt.Sprintf("http://minecraft.curseforge.com/%s/%d-%s/files/latest", pkgURLDirs[data.Type], pid, data.PkgName)
 		if verbose {
 			fmt.Printf("Checking URL %#v\n", download)
 		}
@@ -66,7 +75,8 @@ func getPackage() {
 		fmt.Printf("Saving \"%s\"...\n", save)
 		f, fe := os.OpenFile(save, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 438)
 		must(fe)
-		_, ce := io.Copy(f, ht.Body)
+		lr := newProgressReader(ht.Body, ht.ContentLength)
+		_, ce := io.Copy(f, lr)
 		must(ce)
 		fmt.Printf("Successfully saved to \"%s\"", save)
 	} else {
