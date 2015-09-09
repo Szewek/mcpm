@@ -44,7 +44,13 @@ func (pr *_ProgressReader) Read(p []byte) (n int, err error) {
 	if f = "\r"; ld >= 1.0 {
 		f = "\n"
 	}
-	fmt.Printf("[%s%s] %.2f%%    %s", loadBarFilled[0:ldi], loadBarEmpty[ldi:10], ld*100.0, f)
+	if ldi > 10 {
+		ldi = 10
+	}
+	if ldi < 0 {
+		ldi = 0
+	}
+	fmt.Printf("[%s%s] %.2f%%    %s", loadBarFilled[:ldi], loadBarEmpty[ldi:], ld*100.0, f)
 	return
 }
 func (pr *_ProgressReader) Close() error {
@@ -136,6 +142,21 @@ func downloadPackage(dt *_DataElement, fid int) (string, *_ProgressReader, error
 	fname = fname[strings.LastIndex(fname, "/")+1:]
 	pr := newProgressReader(ht.Body, ht.ContentLength)
 	return fname, pr, nil
+}
+func downloadPackageInfo(dt *_DataElement) (*_ProgressReader, error) {
+	dp := fmt.Sprintf("http://widget.mcf.li/%s/minecraft/", pkgURLDirs[dt.Type])
+	var fln string
+	if dt.Type != type_Mod {
+		fln = fmt.Sprintf("%d-%s", dt.ID, dt.PkgName)
+	} else {
+		fln = dt.PkgName
+	}
+	dp = fmt.Sprint(dp, fln, ".json")
+	ht, hte := http.Get(dp)
+	if hte != nil {
+		return nil, hte
+	}
+	return newProgressReader(ht.Body, ht.ContentLength), nil
 }
 func readGob(file string, v interface{}) error {
 	f, fe := os.OpenFile(file, os.O_RDONLY, 0)

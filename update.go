@@ -148,5 +148,7 @@ func updateCache() {
 	fmt.Println("Database updated.")
 }
 
+func updatePackageCache() {}
+
 // TODO Updating Forge versions' cache
 func updateForgeCache() {}

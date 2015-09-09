@@ -7,20 +7,32 @@ import (
 )
 
 const (
-	dbFile = ".mcpmdb"
-	pnFile = ".mcpmpn"
 	luFile = ".mcpmlu"
+	pnFile = ".mcpmpn"
+	dbFile = ".mcpmdb"
+)
+
+type (
+	_PackageOptions struct {
+		Dir          string
+		ShouldUnpack bool
+	}
+)
+
+var (
+	pkgOptions = map[_PackageType]_PackageOptions{
+		type_Mod:          {"mods", false},
+		type_ModPack:      {"", true},
+		type_ResourcePack: {"resourcepacks", false},
+		type_WorldSave:    {"saves", true},
+	}
 )
 
 // TODO Get version from http://minecraft.curseforge.com/<type>/<id>-<pkgname>/files/<fileid>/download
 func getPackage() {
 	pkgn := flagset.Arg(0)
-	pn, pne := readPackageNamesFromFile(homePath(pnFile))
-	must(pne)
-	db, dbe := readDatabaseFromFile(homePath(dbFile))
-	must(dbe)
-	if pid, ok := (*pn)[pkgn]; ok {
-		data := (*db)[pid]
+	if pid, ok := (*_PKGS)[pkgn]; ok {
+		data := (*_DBASE)[pid]
 		fn, pr, hte := downloadPackage(&data, -1)
 		must(hte)
 		defer pr.Close()

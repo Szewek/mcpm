@@ -15,8 +15,11 @@ var (
 		"get":    getPackage,
 		"search": searchPackage,
 		"update": updateCache,
+		"info":   readPackageInfo,
 	}
 	homeDir = "."
+	_DBASE  *_Database
+	_PKGS   *_PackageNames
 )
 
 func checkHomeDir() {
@@ -49,6 +52,11 @@ func main() {
 	}
 	if f, ok := modes[mode]; ok {
 		checkHomeDir()
+		var er error
+		_DBASE, er = readDatabaseFromFile(homePath(dbFile))
+		must(er)
+		_PKGS, er = readPackageNamesFromFile(homePath(pnFile))
+		must(er)
 		f()
 	} else {
 		flagset.Usage()
