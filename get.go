@@ -49,18 +49,12 @@ func getPackage() {
 			return
 		}
 		var dir string
-		switch data.Type {
-		case type_WorldSave:
-			dir = "saves"
-			break
-		case type_ResourcePack:
-			dir = "resourcepacks"
-			break
-		case type_Mod:
-			dir = "mods"
-			break
-		default:
-			dir = "."
+		if pi, dok := pkgOptions[data.Type]; dok {
+			if pi.Dir != "" {
+				dir = pi.Dir
+			} else {
+				dir = "."
+			}
 		}
 		mkDirIfNotExist(dir)
 		save := fmt.Sprintf("%s/%s", dir, fn)

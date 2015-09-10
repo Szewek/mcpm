@@ -42,6 +42,7 @@ Command | Status | Description
 `mcpm authors tinkers-construct` | Not implemented | Shows mod authors
 `mcpm make-server` | Not implemented | Downloads and installs Minecraft server instance (with Forge)
 `mcpm list` | Not implemented | Lists all package names
+`mcpm info xyz` | Working | Displays information about package "xyz"
 
 ## Contributing
 You can submit bugs and requests. You are also allowed to modify this source code (fork it first, then create pull request).
