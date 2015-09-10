@@ -4,12 +4,12 @@
 		"publish-github"
 	],
 	"BuildConstraints": "linux,!arm windows",
-	"PackageVersion": "0.1.0",
+	"PackageVersion": "0.2.0",
 	"TaskSettings": {
 		"publish-github": {
 			"owner": "Szewek",
-			"repository": "mcpm",
-			"prerelease": true
+			"prerelease": true,
+			"repository": "mcpm"
 		}
 	},
 	"ConfigVersion": "0.9"

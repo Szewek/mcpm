@@ -10,17 +10,23 @@ This repository IS NOT related to [mcpm/mcpm](https://github.com/mcpm/mcpm).
 
 Package name comes from its curse.com URL. For example: /mc-mods/minecraft/**`tinkers-construct`**
 
-## Installation (requires [Go](https://golang.org/) to compile)
+## Installation (requires  to compile)
+
+Check [Releases](https://github.com/Szewek/mcpm/releases) for downloads
+
+To get the latest build, get [Go](https://golang.org/) and type this command:
 ```
 go get github.com/Szewek/mcpm
 ```
 
 Make sure you have set GOPATH/bin in PATH environment variable.
 
-For first time you need to update database.
+Only in 0.1.0, for first time you have to update database.
 ```
 mcpm update
 ```
+
+Version 0.2.0 does this automatically.
 
 ## Use examples
 Command | Status | Description

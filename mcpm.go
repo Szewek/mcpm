@@ -52,11 +52,12 @@ func main() {
 	}
 	if f, ok := modes[mode]; ok {
 		checkHomeDir()
-		var er error
-		_DBASE, er = readDatabaseFromFile(homePath(dbFile))
-		must(er)
-		_PKGS, er = readPackageNamesFromFile(homePath(pnFile))
-		must(er)
+		var der, per error
+		_DBASE, per = readDatabaseFromFile(homePath(dbFile))
+		_PKGS, der = readPackageNamesFromFile(homePath(pnFile))
+		if der != nil && per != nil {
+			updateCache()
+		}
 		f()
 	} else {
 		flagset.Usage()

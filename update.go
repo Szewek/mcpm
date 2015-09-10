@@ -146,6 +146,8 @@ func updateCache() {
 	pn.Save(homePath(pnFile))
 	writeGob(homePath(luFile), time.Now())
 	fmt.Println("Database updated.")
+	_DBASE = db
+	_PKGS = pn
 }
 
 func updatePackageCache() {}
