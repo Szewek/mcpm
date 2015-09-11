@@ -38,20 +38,16 @@ func (ia *IDArray) Add(i int) {
 
 func searchPackage() {
 	val := flagset.Arg(0)
-	pn, pne := readPackageNamesFromFile(homePath(pnFile))
-	must(pne)
-	db, dbe := readDatabaseFromFile(homePath(dbFile))
-	must(dbe)
 	rgx := regexp.MustCompile(val)
 	fmt.Printf("Searching %#v...\n", val)
 	ids := new(IDArray)
-	for p, i := range *pn {
+	for p, i := range *_PKGS {
 		idx := rgx.FindStringIndex(p)
 		if idx != nil {
 			ids.Add(i)
 		}
 	}
-	for i, dt := range *db {
+	for i, dt := range *_DBASE {
 		idx := rgx.FindStringIndex(dt.Name)
 		if idx != nil {
 			ids.Add(i)
@@ -62,7 +58,7 @@ func searchPackage() {
 		}
 	}
 	for i := 0; i < ids.Size(); i++ {
-		data := (*db)[ids.Get(i)]
+		data := (*_DBASE)[ids.Get(i)]
 		fmt.Printf("\n%s [%s] – %s\n %s\n", data.Name, data.PkgName, pkgTypeName[data.Type], data.Description)
 	}
 }

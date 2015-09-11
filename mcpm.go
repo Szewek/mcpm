@@ -8,10 +8,11 @@ import (
 )
 
 var (
-	flagset   = flag.NewFlagSet("", flag.ExitOnError)
-	verbose   bool
-	mcVersion string
-	modes     = map[string]func(){
+	flagset      = flag.NewFlagSet("", flag.ExitOnError)
+	verbose      bool
+	downloadOnly bool
+	versionQuery string
+	modes        = map[string]func(){
 		"get":    getPackage,
 		"search": searchPackage,
 		"update": updateCache,
@@ -37,8 +38,7 @@ func main() {
 		mode = "help"
 	}
 	flagset.Usage = func() {
-		fmt.Fprintln(os.Stderr, "mcpm – Minecraft Package Manager")
-		fmt.Fprint(os.Stderr, "Available modes:\n ")
+		fmt.Fprintln(os.Stderr, "mcpm – Minecraft Package Manager\nAvailable modes:\n ")
 		for m, _ := range modes {
 			fmt.Fprintf(os.Stderr, " %s", m)
 		}
@@ -46,16 +46,16 @@ func main() {
 		flagset.PrintDefaults()
 	}
 	flagset.BoolVar(&verbose, "v", false, "Verbose (WIP)")
-	flagset.StringVar(&mcVersion, "for", "", "Specifies Minecraft version")
+	flagset.BoolVar(&downloadOnly, "d", false, "Download only")
+	flagset.StringVar(&versionQuery, "q", "", "Version query (like \"latest:beta:mc1.7.10\")")
 	if len(os.Args) >= 3 {
 		flagset.Parse(os.Args[2:])
 	}
 	if f, ok := modes[mode]; ok {
 		checkHomeDir()
-		var der, per error
-		_DBASE, per = readDatabaseFromFile(homePath(dbFile))
-		_PKGS, der = readPackageNamesFromFile(homePath(pnFile))
-		if der != nil && per != nil {
+		per := readGobGzip(homePath(pnFile), &_PKGS)
+		der := readGobGzip(homePath(dbFile), &_DBASE)
+		if der != nil || per != nil {
 			updateCache()
 		}
 		f()

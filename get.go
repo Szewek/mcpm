@@ -33,6 +33,9 @@ func getPackage() {
 	pkgn := flagset.Arg(0)
 	if pid, ok := (*_PKGS)[pkgn]; ok {
 		data := (*_DBASE)[pid]
+		if versionQuery != "" {
+			fmt.Println("Version query is not implemented yet...\nDownloading latest release.")
+		}
 		fn, pr, hte := downloadPackage(&data, -1)
 		must(hte)
 		defer pr.Close()

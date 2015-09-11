@@ -130,16 +130,11 @@ func updateCache() {
 			pkgn = pkgn[len(sid)+1:]
 		}
 		authors := []string{}
-		versions := []_FileElement{}
 		for j := 0; j < len(mod.Authors); j++ {
 			authors = append(authors, mod.Authors[j].Name)
 		}
-		for j := 0; j < len(mod.GameVersionLatestFiles); j++ {
-			fi := mod.GameVersionLatestFiles[j]
-			versions = append(versions, _FileElement{fi.ProjectFileID, fi.GameVersion})
-		}
 		(*pn)[pkgn] = mod.Id
-		(*db)[mod.Id] = _DataElement{mod.Id, _PackageType(mod.PackageType), pkgn, mod.Name, mod.Summary, authors, versions}
+		(*db)[mod.Id] = _DataElement{mod.Id, _PackageType(mod.PackageType), pkgn, mod.Name, mod.Summary, authors}
 	}
 	fmt.Printf("Packages count: %d\nSaving...\n", i)
 	db.Save(homePath(dbFile))
