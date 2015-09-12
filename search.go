@@ -10,10 +10,10 @@ type (
 )
 
 var pkgTypeName = map[_PackageType]string{
-	type_Mod:          "Mod",
-	type_ModPack:      "Modpack",
-	type_ResourcePack: "Resource pack",
-	type_WorldSave:    "World save",
+	pkg_Mod:          "Mod",
+	pkg_ModPack:      "Modpack",
+	pkg_ResourcePack: "Resource pack",
+	pkg_WorldSave:    "World save",
 }
 
 func (ia *IDArray) Size() int {

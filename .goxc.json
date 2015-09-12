@@ -4,7 +4,7 @@
 		"publish-github"
 	],
 	"BuildConstraints": "linux,!arm windows",
-	"PackageVersion": "0.3.0",
+	"PackageVersion": "0.3.1",
 	"TaskSettings": {
 		"publish-github": {
 			"owner": "Szewek",

@@ -28,10 +28,10 @@ type (
 
 var (
 	pkgURLDirs = map[_PackageType]string{
-		type_Mod:          "mc-mods",
-		type_ModPack:      "modpacks",
-		type_ResourcePack: "texture-packs",
-		type_WorldSave:    "worlds",
+		pkg_Mod:          "mc-mods",
+		pkg_ModPack:      "modpacks",
+		pkg_ResourcePack: "texture-packs",
+		pkg_WorldSave:    "worlds",
 	}
 )
 
@@ -146,7 +146,7 @@ func downloadPackage(dt *_DataElement, fid int) (string, *_ProgressReader, error
 func downloadPackageInfo(dt *_DataElement) (*_ProgressReader, error) {
 	dp := fmt.Sprintf("http://widget.mcf.li/%s/minecraft/", pkgURLDirs[dt.Type])
 	var fln string
-	if dt.Type != type_Mod {
+	if dt.Type != pkg_Mod {
 		fln = fmt.Sprintf("%d-%s", dt.ID, dt.PkgName)
 	} else {
 		fln = dt.PkgName

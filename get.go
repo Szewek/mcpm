@@ -21,10 +21,10 @@ type (
 
 var (
 	pkgOptions = map[_PackageType]_PackageOptions{
-		type_Mod:          {"mods", false},
-		type_ModPack:      {"", true},
-		type_ResourcePack: {"resourcepacks", false},
-		type_WorldSave:    {"saves", true},
+		pkg_Mod:          {"mods", false},
+		pkg_ModPack:      {"", true},
+		pkg_ResourcePack: {"resourcepacks", false},
+		pkg_WorldSave:    {"saves", true},
 	}
 )
 

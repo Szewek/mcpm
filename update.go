@@ -13,80 +13,28 @@ type (
 	_AuthorInfo struct {
 		Name, Url string
 	}
-	_AttachmentInfo struct {
-		Description, ThumbnailUrl, Title, Url string
-		IsDefault                             bool
-	}
-	_DependencyInfo struct {
-		AddOnId, Type int
-	}
-	_ModuleInfo struct {
-		Foldername  string
-		Fingerprint int64
-	}
-	_FileInfo struct {
-		Id                       int
-		FileName, FileNameOnDisk string
-		FileDate                 string
-		ReleaseType, FileStatus  int
-		DownloadURL              string
-		IsAlternate              bool
-		AlternateFileId          int
-		Dependencies             []_DependencyInfo
-		IsAvailable              bool
-		Modules                  []_ModuleInfo
-		PackageFingerprint       int64
-		GameVersion              []string
-	}
 	_CategoryInfo struct {
 		Id        int
 		Name, URL string
 	}
-	_SectionInfo struct {
-		ID, GameID              int
-		Name                    string
-		PackageType             int
-		Path                    string
-		InitialInclusionPattern string
-		ExtraIncludePattern     string
-	}
-	_GameFileInfo struct {
-		GameVersion     string
-		ProjectFileID   int
-		ProjectFileName string
-		FileType        int
-	}
 	_ModInfo struct {
-		Id                       int
-		Name                     string
-		Authors                  []_AuthorInfo
-		Attachments              []_AttachmentInfo
-		WebSiteURL               string
-		GameId                   int
-		Summary                  string
-		DefaultFileId            int
-		CommentCount             int
-		DownloadCount            float64
-		Rating                   int
-		InstallCount             int
-		IconId                   int
-		LatestFiles              []_FileInfo
-		Categories               []_CategoryInfo
-		PrimaryAuthorName        string
-		ExternalUrl              string
-		Status                   int
-		Stage                    int
-		DonationUrl              string
-		PrimaryCategoryId        int
-		PrimaryCategoryName      string
-		PrimaryCategoryAvatarUrl string
-		Likes                    int
-		CategorySection          _SectionInfo
-		PackageType              int
-		AvatarUrl                string
-		GameVersionLatestFiles   []_GameFileInfo
-		IsFeatured               int
-		PopularityScore          float64
+		Id              int
+		Name            string
+		Authors         []_AuthorInfo
+		WebSiteURL      string
+		Summary         string
+		DownloadCount   float64
+		Rating          int
+		InstallCount    int
+		Categories      []_CategoryInfo
+		ExternalUrl     string
+		Status          int
+		Stage           int
+		DonationUrl     string
+		Likes           int
+		PackageType     int
+		IsFeatured      int
+		PopularityScore float64
 	}
 	_Response struct {
 		Timestamp uint64     `json:"timestamp"`
@@ -137,12 +85,12 @@ func updateCache() {
 		(*db)[mod.Id] = _DataElement{mod.Id, _PackageType(mod.PackageType), pkgn, mod.Name, mod.Summary, authors}
 	}
 	fmt.Printf("Packages count: %d\nSaving...\n", i)
-	db.Save(homePath(dbFile))
-	pn.Save(homePath(pnFile))
+	writeGobGzip(homePath(dbFile), db)
+	writeGobGzip(homePath(pnFile), pn)
 	writeGob(homePath(luFile), time.Now())
-	fmt.Println("Database updated.")
 	_DBASE = db
 	_PKGS = pn
+	fmt.Println("Database updated.")
 }
 
 func updatePackageCache() {}
