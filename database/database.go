@@ -1,27 +1,27 @@
 package database
 
+const dbFile = "v040.mcpmdb"
+
 type (
 	Database interface {
-		Read()
-		Update()
 		Packages() PkgList
 		Files() FileList
 	}
 	database struct {
-		p PkgList
-		f FileList
+		p *pkglist
+		f *filelist
 	}
 )
 
-func (db *database) Read() {}
-func (db *database) Write() {}
 func (db *database) Packages() PkgList {
-	return nil
+	return db.p
 }
 func (db *database) Files() FileList {
-	return nil
+	return db.f
 }
 
-func NewDatabase() Database {
-	return &database{}
+var db *database = nil
+
+func GetDatabase() Database {
+	return db
 }

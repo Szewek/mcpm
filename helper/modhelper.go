@@ -1,4 +1,5 @@
 package helper
+
 import (
 	"archive/zip"
 	"encoding/json"
@@ -19,7 +20,7 @@ func (mh *mcmodinfohelper) ReadContents() map[string]interface{} {
 		panic(ze)
 	}
 	defer z.Close()
-	var zf zip.File
+	var zf *zip.File
 	for i := 0; i < len(z.File); i++ {
 		if z.File[i].Name == "mcmod.info" {
 			zf = z.File[i]
@@ -42,6 +43,6 @@ func (mh *mcmodinfohelper) ReadContents() map[string]interface{} {
 	return jsf
 }
 
-func NewModHelper(filename string) {
+func NewModHelper(filename string) ModHelper {
 	return &mcmodinfohelper{filename}
 }
