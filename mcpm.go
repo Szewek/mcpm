@@ -40,7 +40,7 @@ func main() {
 	flagset.Usage = func() {
 		fmt.Fprintln(os.Stderr, "mcpm – Minecraft Package Manager\nAvailable modes:\n ")
 		for m, _ := range modes {
-			fmt.Fprintf(os.Stderr, " %s", m)
+			fmt.Fprintf(os.Stderr, " %s\n", m)
 		}
 		fmt.Fprintln(os.Stderr, "\nAvailable options: ")
 		flagset.PrintDefaults()

@@ -12,3 +12,16 @@ type (
 		f FileList
 	}
 )
+
+func (db *database) Read() {}
+func (db *database) Write() {}
+func (db *database) Packages() PkgList {
+	return nil
+}
+func (db *database) Files() FileList {
+	return nil
+}
+
+func NewDatabase() Database {
+	return &database{}
+}
