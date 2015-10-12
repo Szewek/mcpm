@@ -23,11 +23,12 @@ func createHomeDir() {
 	u, ue := user.Current()
 	Must(ue)
 	homedir = fmt.Sprintf("%s/.mcpm/", u.HomeDir)
-	Must(mkDirIfNotExist())
+	Must(MkDirIfNotExist(homedir))
 }
-func mkDirIfNotExist() error {
-	if _, de := os.Stat(homedir); os.IsNotExist(de) {
-		return os.MkdirAll(homedir, 511)
+
+func MkDirIfNotExist(dir string) error {
+	if _, e := os.Stat(dir); os.IsNotExist(e) {
+		return os.MkdirAll(dir, 511)
 	}
 	return nil
 }

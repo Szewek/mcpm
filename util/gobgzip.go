@@ -7,7 +7,7 @@ import (
 )
 
 func ReadGobGzip(file string, v interface{}) error {
-	f, fe := os.OpenFile(homedir+file, os.O_RDONLY, 0)
+	f, fe := os.OpenFile(GetHomeDir()+file, os.O_RDONLY, 0)
 	if fe != nil {
 		return fe
 	}
@@ -20,7 +20,7 @@ func ReadGobGzip(file string, v interface{}) error {
 	return gb.Decode(v)
 }
 func WriteGobGzip(file string, v interface{}) error {
-	f, fe := os.OpenFile(homedir+file, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 438)
+	f, fe := os.OpenFile(GetHomeDir()+file, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 438)
 	if fe != nil {
 		return fe
 	}
