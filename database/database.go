@@ -2,7 +2,6 @@ package database
 
 import (
 	"encoding/gob"
-	"fmt"
 
 	"github.com/Szewek/mcpm/util"
 )
@@ -10,6 +9,7 @@ import (
 const dbFile = "v040.mcpmdb"
 
 type (
+	// Database interface allows to store lists of files and packages locally or remotely.
 	Database interface {
 		Packages() PkgList
 		Files() FileList
@@ -28,14 +28,15 @@ func (db *database) Files() FileList {
 }
 
 var (
-	db    *database = &database{}
-	dbset           = false
+	db    = &database{}
+	dbset = false
 )
 
+// GetDatabase function returns a database stored in MCPM local directory.
+// If database doesn't exist it gets updated.
 func GetDatabase() Database {
 	if !dbset {
 		if er := util.ReadGobGzip(dbFile, db); er != nil {
-			fmt.Printf("Error DB: %#v\n\n%s", er, er)
 			UpdateDatabase(false)
 		}
 	}

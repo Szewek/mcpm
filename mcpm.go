@@ -1,3 +1,5 @@
+// MCPM is a command-line tool for managing Minecraft resources (packages)
+
 package main
 
 import (

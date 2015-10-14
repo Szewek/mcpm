@@ -14,14 +14,15 @@ const remoteURL = "http://clientupdate-v6.cursecdn.com/feed/addons/432/v10/compl
 
 type (
 	authorInfo struct {
-		Name, Url string
+		Name string
+		// Url string
 	}
 	categoryInfo struct {
-		Id        int
+		ID        int `json:"Id"`
 		Name, URL string
 	}
 	modInfo struct {
-		Id         int
+		ID         int `json:"Id"`
 		Name       string
 		Authors    []authorInfo
 		WebSiteURL string
@@ -45,6 +46,7 @@ type (
 	}
 )
 
+//UpdateDatabase gets information from Curse CDN server and puts them in a database
 func UpdateDatabase(verbose bool) {
 	fmt.Println("Updating database...")
 	resp, hte := http.Get(remoteURL)
@@ -71,12 +73,12 @@ func UpdateDatabase(verbose bool) {
 		if indx > 0 {
 			name = pkg.WebSiteURL[indx:]
 		} else {
-			name = fmt.Sprintf("--%d", pkg.Id)
+			name = fmt.Sprintf("--%d", pkg.ID)
 			if verbose {
 				fmt.Printf("Found unknown package: %#v; Naming it %#v", pkg.WebSiteURL, name)
 			}
 		}
-		sid := fmt.Sprint(pkg.Id)
+		sid := fmt.Sprint(pkg.ID)
 		idix := strings.Index(name, sid)
 		if idix == 0 {
 			name = name[len(sid)+1:]
@@ -85,8 +87,8 @@ func UpdateDatabase(verbose bool) {
 		for j := 0; j < len(pkg.Authors); j++ {
 			authors = append(authors, pkg.Authors[j].Name)
 		}
-		db.P.Names[name] = pkg.Id
-		db.P.Pkgs[pkg.Id] = PkgElement{pkg.Id, pkg.PackageType, name, pkg.Name, pkg.Summary, authors}
+		db.P.Names[name] = pkg.ID
+		db.P.Pkgs[pkg.ID] = PkgElement{pkg.ID, pkg.PackageType, name, pkg.Name, pkg.Summary, authors}
 	}
 	fmt.Printf("Saving %d packages...\n", i)
 	util.Must(util.WriteGobGzip(dbFile, db))

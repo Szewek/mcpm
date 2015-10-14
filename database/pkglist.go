@@ -1,11 +1,13 @@
 package database
 
 type (
+	// PkgElement contains information about Minecraft resource (package)
 	PkgElement struct {
 		ID, Type                    int
 		Name, FullName, Description string
 		Authors                     []string
 	}
+	//PkgList interface supplies methods for lists of packages
 	PkgList interface {
 		Get(pid int) *PkgElement
 		GetByName(pname string) *PkgElement
