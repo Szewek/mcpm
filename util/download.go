@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -15,7 +16,7 @@ var (
 	}
 )
 
-func DownloadPackage(typ int, pid int, name string, fid int) (string, *ProgressReader, error) {
+func DownloadPackage(typ int, pid int, name string, fid int) (string, io.ReadCloser, error) {
 	us := fmt.Sprintf("http://minecraft.curseforge.com/%s/%d-%s/files/", pkgURLDirs[typ], pid, name)
 	var us2 string
 	if us2 = "latest"; fid != -1 {
@@ -32,7 +33,8 @@ func DownloadPackage(typ int, pid int, name string, fid int) (string, *ProgressR
 	fname = fname[strings.LastIndex(fname, "/")+1:]
 	return fname, NewProgressReader(ht.Body, ht.ContentLength), nil
 }
-func DownloadPackageInfo(typ int, pid int, name string) (*ProgressReader, error) {
+
+func DownloadPackageInfo(typ int, pid int, name string) (io.ReadCloser, error) {
 	dp := fmt.Sprintf("http://widget.mcf.li/%s/minecraft/", pkgURLDirs[typ])
 	var fln string
 	if typ != 6 {

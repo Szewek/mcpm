@@ -1,17 +1,22 @@
-# mcpm – Minecraft Package Manager
+# MCPM - Minecraft Package Manager
 [![Build Status](https://travis-ci.org/Szewek/mcpm.svg?branch=master)](https://travis-ci.org/Szewek/mcpm)
 
-`mcpm` is a package manager that lets you manage mods, saves and resource packs. It's written in Go.
+MCPM is a package manager AND A LIBRARY, that lets you manage mods, modpacks, world saves and resource packs. It's all written in [Go](https://golang.org/).
+You can use this as a server command-line tool or create whole new tool using MCPM as a library.
 
-This repository IS NOT related to [mcpm/mcpm](https://github.com/mcpm/mcpm).
+The idea of MCPM is creating easy and fully automated management of Minecraft resources. It is dedicated to both servers and clients.
+
+This project is still missing its target features. You can contribute by giving new ideas or bugs at Issues page or developing the source code.
 
 ## How does this work?
-`mcpm` uses Curse CDN to gather information about everything Minecraft-related. So everything downloadable in Curse is also available in `mcpm`.
+MCPM gets information of all Minecraft-related stuff available from Curse CDN server. So everything downloadable on Curse is also available in MCPM.
 
-Package name comes from its curse.com URL. For example: /mc-mods/minecraft/**`tinkers-construct`**
+Package names come from their specific curse.com URL. For example: /mc-mods/minecraft/**`tinkers-construct`**
+
+## Why Go? / Why not Java?
+The answer is simple. This is not a Minecraft mod, launcher nor a development library. Also Go is simple and easy to understand language.
 
 ## Installation
-
 Check [Releases](https://github.com/Szewek/mcpm/releases) for downloads
 
 To get the latest build, get [Go](https://golang.org/) and type this command:
@@ -21,33 +26,21 @@ go get github.com/Szewek/mcpm
 
 If you have it compiled, make sure you have set GOPATH/bin in PATH environment variable.
 
-Only in 0.1.0, for first time you have to update database.
+## Modes
+Modes are commands available in MCPM. They can be used as plugins for your own tool. To run a mode, type this following command:
 ```
-mcpm update
+mcpm <modename>
 ```
 
-Version 0.2.0 does this automatically.
-
-## Use examples
+## Modes examples
 Command | Status | Description
 --------|--------|------------
 `mcpm get tinkers-construct` | Working | Downloads the newest version of [Tinkers' Construct](http://www.curse.com/mc-mods/minecraft/tinkers-construct) and puts in "mods" folder where this command was executed
-`mcpm get tinkers-construct -for 1.7.10` | Not implemented | Downloads the latest version of that mod for Minecraft 1.7.10
-`mcpm get tinkers-construct -d` | Not implemented | Only downloads that mod (does not put into subfolder)
 `mcpm search Tinkers` | Working | Searches database for packages containing word "Tinkers" in package name, title and description
 `mcpm update` | Working | Updates database
-`mcpm forge` | Not implemented | Installs Minecraft Forge (recommended version)
-`mcpm forge --latest` | Not implemented | Installs the latest version of Minecraft Forge
-`mcpm authors` | Not implemented | Shows a list of all mcpm contributors
-`mcpm authors tinkers-construct` | Not implemented | Shows mod authors
-`mcpm make-server` | Not implemented | Downloads and installs Minecraft server instance (with Forge)
-`mcpm list` | Not implemented | Lists all package names
 `mcpm info xyz` | Working | Displays information about package "xyz"
 
-## Contributing
-You can submit bugs and requests. You are also allowed to modify this source code (fork it first, then create pull request).
-
-## To do
+## TO DO (for contributors)
 - [x] Caching database
 - [x] Getting package by unique name
 - [ ] Getting package for appropriate version of Minecraft

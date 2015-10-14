@@ -24,9 +24,9 @@ var (
 func LaunchMode(m string) {
 	mo := &ModeOptions{}
 	flg.Usage = func() {
-		fmt.Fprintln(os.Stderr, "mcpm – Minecraft Package Manager\nAvailable modes:\n ")
+		fmt.Fprintln(os.Stderr, "mcpm – Minecraft Package Manager\nAvailable modes:")
 		for m, _ := range modelist {
-			fmt.Fprintf(os.Stderr, " %s\n", m)
+			fmt.Fprintf(os.Stderr, "  %s\n", m)
 		}
 		fmt.Fprintln(os.Stderr, "\nAvailable options: ")
 		flg.PrintDefaults()
