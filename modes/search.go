@@ -65,5 +65,5 @@ func search(mo *ModeOptions) {
 }
 
 func init() {
-	modelist["search"] = search
+	registerMode("search", search)
 }

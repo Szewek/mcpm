@@ -9,5 +9,5 @@ func getserver(mo *ModeOptions) {
 }
 
 func init() {
-	modelist["get-server"] = getserver
+	registerMode("get-server", getserver)
 }

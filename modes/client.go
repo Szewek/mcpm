@@ -9,5 +9,5 @@ func getclient(mo *ModeOptions) {
 }
 
 func init() {
-	modelist["get-client"] = getclient
+	registerMode("get-client", getclient)
 }

@@ -75,5 +75,5 @@ func get(mo *ModeOptions) {
 }
 
 func init() {
-	modelist["get"] = get
+	registerMode("get", get)
 }

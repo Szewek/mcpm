@@ -43,5 +43,5 @@ func info(mo *ModeOptions) {
 }
 
 func init() {
-	modelist["info"] = info
+	registerMode("info", info)
 }

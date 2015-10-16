@@ -19,7 +19,7 @@ type (
 )
 
 var (
-	modelist = ModeList{}
+	modelist = &ModeList{}
 	flg      = flag.NewFlagSet("", flag.ExitOnError)
 )
 
@@ -29,7 +29,7 @@ func LaunchMode(m string) {
 	mo := &ModeOptions{}
 	flg.Usage = func() {
 		fmt.Fprintln(os.Stderr, "mcpm – Minecraft Package Manager\nAvailable modes:")
-		for m := range modelist {
+		for m := range *modelist {
 			fmt.Fprintf(os.Stderr, "  %s\n", m)
 		}
 		fmt.Fprintln(os.Stderr, "\nAvailable options: ")
@@ -42,9 +42,13 @@ func LaunchMode(m string) {
 		flg.Parse(os.Args[2:])
 		mo.Args = flg.Args()
 	}
-	if f, ok := modelist[m]; ok {
+	if f, ok := (*modelist)[m]; ok {
 		f(mo)
 	} else {
 		flg.Usage()
 	}
+}
+
+func registerMode(m string, fn func(*ModeOptions)) {
+	(*modelist)[m] = fn
 }

@@ -7,5 +7,5 @@ func update(mo *ModeOptions) {
 }
 
 func init() {
-	modelist["update"] = update
+	registerMode("update", update)
 }
