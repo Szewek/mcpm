@@ -12,14 +12,23 @@ const (
 
 type (
 	ProgressReader struct {
-		r    io.Reader
-		c, t int64
+		r     io.Reader
+		c, t  uint64
+		intro string
 	}
 )
 
 func (pr *ProgressReader) Read(p []byte) (n int, err error) {
+	if pr.c == 0 {
+		fmt.Println(pr.intro)
+	} else if pr.c > pr.t {
+		return
+	}
 	n, err = pr.r.Read(p)
-	pr.c += int64(n)
+	if n == 0 {
+		return
+	}
+	pr.c += uint64(n)
 	ld := float64(pr.c) / float64(pr.t)
 	ldi := int(ld * 10.0)
 	var f string
@@ -31,7 +40,7 @@ func (pr *ProgressReader) Read(p []byte) (n int, err error) {
 	} else if ldi < 0 {
 		ldi = 0
 	}
-	fmt.Printf("[%s%s] %.2f%%    %s", loadBarFilled[:ldi], loadBarEmpty[ldi:], ld*100.0, f)
+	fmt.Printf("  [%s%s] %.2f%%    %s", loadBarFilled[:ldi], loadBarEmpty[ldi:], ld*100.0, f)
 	return
 }
 func (pr *ProgressReader) Close() error {
@@ -41,6 +50,6 @@ func (pr *ProgressReader) Close() error {
 	return nil
 }
 
-func NewProgressReader(r io.Reader, total int64) *ProgressReader {
-	return &ProgressReader{r, 0, total}
+func NewProgressReader(r io.Reader, total uint64, intro string) *ProgressReader {
+	return &ProgressReader{r, 0, total, intro}
 }

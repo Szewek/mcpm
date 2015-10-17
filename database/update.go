@@ -56,7 +56,7 @@ func UpdateDatabase(verbose bool) {
 		fmt.Printf("Bzipped JSON file size: %s\n", util.FileSize(resp.ContentLength))
 	}
 
-	pr := util.NewProgressReader(resp.Body, resp.ContentLength)
+	pr := util.NewProgressReader(resp.Body, uint64(resp.ContentLength), "Updating database...")
 	bz := bzip2.NewReader(pr)
 	js := json.NewDecoder(bz)
 

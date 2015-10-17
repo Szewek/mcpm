@@ -6,23 +6,8 @@ import (
 	"os"
 
 	"github.com/Szewek/mcpm/database"
+	"github.com/Szewek/mcpm/helper"
 	"github.com/Szewek/mcpm/util"
-)
-
-type (
-	packageOptions struct {
-		Dir          string
-		ShouldUnpack bool
-	}
-)
-
-var (
-	pkgOptions = map[int]packageOptions{
-		6: {"mods", false},
-		5: {"", true},
-		3: {"resourcepacks", false},
-		1: {"saves", true},
-	}
 )
 
 func get(mo *ModeOptions) {
@@ -33,9 +18,9 @@ func get(mo *ModeOptions) {
 		fn, pr, hte := util.DownloadPackage(en.Type, en.ID, en.Name, -1)
 
 		util.Must(hte)
-		defer pr.Close()
+		defer util.MustClose(pr)
 
-		fmt.Printf("Do you want to download package %#v? [y|N]", fn)
+		fmt.Printf("Do you want to download %#v? [y|N] ", fn)
 		r := []byte{}
 		_, se := fmt.Scanln(&r)
 		util.Must(se)
@@ -48,23 +33,24 @@ func get(mo *ModeOptions) {
 			return
 		}
 
-		dir := "."
-		if pi, dok := pkgOptions[en.Type]; dok && pi.Dir != "" {
-			dir = pi.Dir
-		}
-		util.Must(util.MkDirIfNotExist(dir))
+		pkgo := util.GetPackageOptions(en.Type)
+		util.Must(util.MkDirIfNotExist(pkgo.Dir))
 
-		sav := fmt.Sprintf("%s/%s", dir, fn)
-		fmt.Printf("Saving \"%s\"...\n", sav)
+		sav := fmt.Sprintf("%s/%s", pkgo.Dir, fn)
 		f, fe := os.OpenFile(sav, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 438)
 		util.Must(fe)
+		defer util.MustClose(f)
 
 		_, ce := io.Copy(f, pr)
 		util.Must(ce)
-		fmt.Printf("Successfully saved to \"%s\"", sav)
+		fmt.Printf("Successfully saved to \"%s\"\n", sav)
 
-		if pkgOptions[en.Type].ShouldUnpack {
+		if pkgo.ShouldUnpack {
 			fmt.Println("This package should be unpacked in newer versions.")
+			if en.Type == 5 {
+				helper.NewModPackHelper(sav).Unpack()
+				fmt.Printf("Successfully installed modpack %#v\n", en.FullName)
+			}
 		}
 	} else {
 		if mo.Verbose {

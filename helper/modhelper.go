@@ -3,6 +3,8 @@ package helper
 import (
 	"archive/zip"
 	"encoding/json"
+
+	"github.com/Szewek/mcpm/util"
 )
 
 type (
@@ -16,10 +18,8 @@ type (
 
 func (mh *mcmodinfohelper) ReadContents() map[string]interface{} {
 	z, ze := zip.OpenReader(mh.filename)
-	if ze != nil {
-		panic(ze)
-	}
-	defer z.Close()
+	util.Must(ze)
+	defer util.MustClose(z)
 	var zf *zip.File
 	for i := 0; i < len(z.File); i++ {
 		if z.File[i].Name == "mcmod.info" {
@@ -31,15 +31,11 @@ func (mh *mcmodinfohelper) ReadContents() map[string]interface{} {
 		return nil
 	}
 	ozf, oze := zf.Open()
-	if oze != nil {
-		panic(oze)
-	}
-	defer ozf.Close()
+	util.Must(oze)
+	defer util.MustClose(ozf)
 	jd := json.NewDecoder(ozf)
 	var jsf map[string]interface{}
-	if je := jd.Decode(jsf); je != nil {
-		panic(je)
-	}
+	util.Must(jd.Decode(jsf))
 	return jsf
 }
 

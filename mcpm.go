@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/Szewek/mcpm/modes"
+	"github.com/Szewek/mcpm/websrv"
 )
 
 func main() {
@@ -14,5 +15,10 @@ func main() {
 	} else {
 		m = "help"
 	}
-	modes.LaunchMode(m)
+
+	if m == "websrv" {
+		websrv.LaunchWebServer()
+	} else {
+		modes.LaunchMode(m)
+	}
 }
