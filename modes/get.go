@@ -50,6 +50,10 @@ func get(mo *ModeOptions) {
 			if en.Type == 5 {
 				helper.NewModPackHelper(sav).Unpack()
 				fmt.Printf("Successfully installed modpack %#v\n", en.FullName)
+			} else if en.Type == 1 {
+				svh := helper.NewSaveHelper(sav)
+				svh.UnpackAll()
+				fmt.Printf("Successfully installed world save %#v\n", en.FullName)
 			}
 		}
 	} else {

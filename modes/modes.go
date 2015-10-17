@@ -33,7 +33,9 @@ func (m *Mode) Run(mo *ModeOptions) {
 	if mb := m.RunBefore; mb != nil {
 		mb.Run(mo)
 	}
-	m.Func(m, mo)
+	if m.CanRun() {
+		m.Func(m, mo)
+	}
 	if ma := m.RunAfter; ma != nil {
 		ma.Run(mo)
 	}
