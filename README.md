@@ -34,18 +34,18 @@ mcpm <modename>
 ```
 
 ## Modes examples
-Command | Status | Description
---------|--------|------------
-`mcpm get tinkers-construct` | Working | Downloads the newest version of [Tinkers' Construct](http://www.curse.com/mc-mods/minecraft/tinkers-construct) and puts in "mods" folder where this command was executed
-`mcpm search Tinkers` | Working | Searches database for packages containing word "Tinkers" in package name, title and description
-`mcpm update` | Working | Updates database
-`mcpm info xyz` | Working | Displays information about package "xyz"
+Command | Description
+--------|------------
+`mcpm get tinkers-construct` | Downloads the newest version of [Tinkers' Construct](http://www.curse.com/mc-mods/minecraft/tinkers-construct) and puts in "mods" folder where this command was executed
+`mcpm search Tinkers` | Searches database for packages containing word "Tinkers" in package name, title and description
+`mcpm update` | Updates database
+`mcpm info xyz` | Displays information about package "xyz"
 
 ## TO DO (for contributors)
 - [x] Caching database
 - [x] Getting package by unique name
 - [ ] Getting package for appropriate version of Minecraft
-- [ ] Unpacking modpacks
-- [ ] Creating modpacks
+- [x] Unpacking modpacks and world saves
 - [ ] Creating server and client instances
+- [ ] Managing server from through HTTP
 - [ ] Getting mods' source code

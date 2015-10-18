@@ -11,6 +11,8 @@ var (
 	homeset = false
 )
 
+// GetHomeDir returns default MCPM directory.
+// If directory is not set yet, function creates a path to it and checks if it exists.
 func GetHomeDir() string {
 	if !homeset {
 		createHomeDir()
@@ -26,6 +28,8 @@ func createHomeDir() {
 	Must(MkDirIfNotExist(homedir))
 }
 
+// MkDirIfNotExist checks if a directory exists.
+// If not, it creates one.
 func MkDirIfNotExist(dir string) error {
 	if _, e := os.Stat(dir); os.IsNotExist(e) {
 		return os.MkdirAll(dir, 511)

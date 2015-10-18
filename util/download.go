@@ -27,6 +27,8 @@ var (
 	}
 )
 
+// DownloadPackage allows to download packages.
+// If File ID (fid) equals -1, then it downloads the latest version.
 func DownloadPackage(typ int, pid int, name string, fid int) (string, io.ReadCloser, error) {
 	us := fmt.Sprintf("http://minecraft.curseforge.com/%s/%d-%s/files/", pkgURLDirs[typ], pid, name)
 	var us2 string
@@ -43,6 +45,7 @@ func DownloadPackage(typ int, pid int, name string, fid int) (string, io.ReadClo
 	return fname, NewProgressReader(ht.Body, uint64(ht.ContentLength), fmt.Sprintf("Downloading %#v (package %#v)...", fname, name)), nil
 }
 
+//DownloadPackageInfo allows to download information about packages.
 func DownloadPackageInfo(typ int, pid int, name string) (io.ReadCloser, error) {
 	dp := fmt.Sprintf("http://widget.mcf.li/%s/minecraft/", pkgURLDirs[typ])
 	var fln string

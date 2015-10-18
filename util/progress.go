@@ -11,6 +11,7 @@ const (
 )
 
 type (
+	// ProgressReader is an io.ReadCloser which outputs progress in a terminal.
 	ProgressReader struct {
 		r     io.Reader
 		c, t  uint64
@@ -18,6 +19,7 @@ type (
 	}
 )
 
+// Read reads data and updates progress.
 func (pr *ProgressReader) Read(p []byte) (n int, err error) {
 	if pr.c == 0 {
 		fmt.Println(pr.intro)
@@ -43,6 +45,9 @@ func (pr *ProgressReader) Read(p []byte) (n int, err error) {
 	fmt.Printf("  [%s%s] %.2f%%    %s", loadBarFilled[:ldi], loadBarEmpty[ldi:], ld*100.0, f)
 	return
 }
+
+// Close checks if given io.Reader is also an io.Closer.
+// If true, it closes.
 func (pr *ProgressReader) Close() error {
 	if rc := pr.r.(io.Closer); rc != nil {
 		return rc.Close()
@@ -50,6 +55,7 @@ func (pr *ProgressReader) Close() error {
 	return nil
 }
 
+// NewProgressReader returns new ProgressReader.
 func NewProgressReader(r io.Reader, total uint64, intro string) *ProgressReader {
 	return &ProgressReader{r, 0, total, intro}
 }
