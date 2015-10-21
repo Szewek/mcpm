@@ -1,3 +1,6 @@
+# IntelliJ IDEA project directory
+.idea
+
 # mcpm Specific files
 .mcpm*
 

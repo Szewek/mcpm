@@ -42,9 +42,9 @@ func (m *Mode) Run(mo *ModeOptions) {
 }
 
 var (
-	modelist  = &ModeList{}
-	modelist2 = map[string]*Mode{}
-	flg       = flag.NewFlagSet("", flag.ExitOnError)
+	modelist = &ModeList{}
+	//modelist2 = map[string]*Mode{}
+	flg = flag.NewFlagSet("", flag.ExitOnError)
 )
 
 // LaunchMode finds mode by its name and run this with set mode options.
@@ -53,7 +53,7 @@ func LaunchMode(m string) {
 	mo := &ModeOptions{}
 	mo.ModeName = m
 	flg.Usage = func() {
-		fmt.Fprintln(os.Stderr, "mcpm – Minecraft Package Manager\nAvailable modes:")
+		fmt.Fprintln(os.Stderr, "MCPM -- Minecraft Package Manager\nAvailable modes:")
 		for m := range *modelist {
 			fmt.Fprintf(os.Stderr, "  %s\n", m)
 		}
@@ -75,13 +75,13 @@ func LaunchMode(m string) {
 }
 
 // EXPERIMENTAL
-func runModeByName(m string) {
+/*func runModeByName(m string) {
 	if md, g := modelist2[m]; g {
 		mo := &ModeOptions{}
 		mo.ModeName = m
 		md.Run(mo)
 	}
-}
+}*/
 
 func registerMode(m string, fn func(*ModeOptions)) {
 	(*modelist)[m] = fn
