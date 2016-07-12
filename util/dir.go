@@ -24,7 +24,7 @@ func GetHomeDir() string {
 func createHomeDir() {
 	u, ue := user.Current()
 	Must(ue)
-	homedir = fmt.Sprintf("%s/.mcpm/", u.HomeDir)
+	homedir = fmt.Sprint(u.HomeDir, "/.mcpm/")
 	Must(MkDirIfNotExist(homedir))
 }
 

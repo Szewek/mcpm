@@ -5,12 +5,28 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
-type PackageOptions struct {
-	Dir          string
-	ShouldUnpack bool
-}
+type (
+	PackageOptions struct {
+		Dir          string
+		ShouldUnpack bool
+	}
+	ProjectInfo struct {
+		ID, Name, Type string
+		Files          []FileInfo
+	}
+	FileInfo struct {
+		ID, Name, Release, MCVersion string
+	}
+)
+
+const (
+	_CurseForgeURL = "http://minecraft.curseforge.com/projects/%s"
+	_CurseMCURL    = "http://curse.com/project/%s"
+)
 
 var (
 	pkgURLDirs = map[int]string{
@@ -67,4 +83,41 @@ func GetPackageOptions(typ int) *PackageOptions {
 		return &k
 	}
 	return &PackageOptions{".", false}
+}
+
+// GetCurseProjectInfo downloads information about specified project.
+// Project's name comes from Curse Project URL.
+func GetCurseProjectInfo(s string) *ProjectInfo {
+	ur := fmt.Sprintf(_CurseForgeURL, s)
+	ht, hte := http.Get(ur)
+	defer MustClose(ht.Body)
+	Must(hte)
+	doc, doce := goquery.NewDocumentFromResponse(ht)
+	Must(doce)
+	tit := doc.Find("h1.project-title a .overflow-tip").Text()
+	oa := doc.Find(".RootGameCategory a").Eq(0)
+	ida := doc.Find(".view-on-curse a").Eq(0)
+	cat := oa.AttrOr("href", " ")
+	id := ida.AttrOr("href", "")
+	idn := id[strings.LastIndexByte(id, '/')+1:]
+	if idn == "" {
+		return nil
+	}
+	cur := fmt.Sprintf(_CurseMCURL, idn)
+	cht, chte := http.Get(cur)
+	defer MustClose(cht.Body)
+	defer Must(chte)
+	cdoc, cdoce := goquery.NewDocumentFromResponse(cht)
+	Must(cdoce)
+	list := cdoc.Find("table.project-file-listing tbody tr")
+	xfi := make([]FileInfo, list.Length())
+	list.Each(func(i int, n *goquery.Selection) {
+		td := n.Find("td")
+		na := td.Eq(0).Find("a")
+		nt := td.Eq(1)
+		nv := td.Eq(2)
+		tid := na.AttrOr("href", "")
+		xfi[i] = FileInfo{tid[strings.LastIndexByte(tid, '/')+1:], na.Text(), nt.Text(), nv.Text()}
+	})
+	return &ProjectInfo{idn, tit, cat[1:], xfi}
 }
