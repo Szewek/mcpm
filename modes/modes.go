@@ -9,11 +9,13 @@ import (
 type (
 	// ModeOptions contains all flags and arguments set in a command.
 	ModeOptions struct {
-		ModeName     string
-		Verbose      bool
-		DownloadOnly bool
-		VersionQuery string
-		Args         []string
+		ModeName string
+		Verbose  bool
+		Args     []string
+	}
+	ModeCommand interface {
+		CanRun() bool
+		Run(*ModeOptions)
 	}
 	// Mode contains functions needed in specific order. (EXPERIMENTAL)
 	Mode struct {
@@ -61,8 +63,6 @@ func LaunchMode(m string) {
 		flg.PrintDefaults()
 	}
 	flg.BoolVar(&(mo.Verbose), "v", false, "Verbose (WIP)")
-	flg.BoolVar(&(mo.DownloadOnly), "d", false, "Download only")
-	flg.StringVar(&(mo.VersionQuery), "q", "", "Version query (like \"latest:beta:mc1.7.10\")")
 	if len(os.Args) >= 3 {
 		flg.Parse(os.Args[2:])
 		mo.Args = flg.Args()

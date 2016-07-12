@@ -4,6 +4,7 @@ package main
 import (
 	"os"
 
+	_ "github.com/Szewek/mcpm/log"
 	"github.com/Szewek/mcpm/modes"
 	"github.com/Szewek/mcpm/websrv"
 )
