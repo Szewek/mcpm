@@ -1,6 +1,7 @@
 package util_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/Szewek/mcpm/util"
@@ -44,8 +45,8 @@ func BenchmarkFileSize(b *testing.B) {
 func BenchmarkProgress(b *testing.B) {
 	tot := uint64(b.N * bufSize)
 	buf := make([]byte, bufSize)
-	prog := util.NewProgressReader(new(noReader), tot, "")
 	b.SetBytes(bufSize)
+	prog := util.NewProgressReader(new(noReader), tot, fmt.Sprintf("TESTING %d", b.N))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		prog.Read(buf)

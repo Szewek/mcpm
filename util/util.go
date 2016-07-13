@@ -10,8 +10,10 @@ import (
 )
 
 const (
-	fsizes = "kMGTP"
-	errLog = "\nAN ERROR OCURRED!\n\n=== Go representation of that error ===\n%#v\n\n=== Error message ===\n%s\n-----\n"
+	fsizes     = "kMGTP"
+	byteStep   = 1000
+	byteBiStep = 1024
+	errLog     = "\nAN ERROR OCURRED!\n\n=== Go representation of that error ===\n%#v\n\n=== Error message ===\n%s\n-----\n"
 )
 
 // Must handles various errors and prints their Go and string values.
@@ -31,13 +33,31 @@ func MustClose(cl io.Closer) {
 func FileSize(size int64) string {
 	var s float64
 	i := -1
-	for s = float64(size); s >= 1024 && i < len(fsizes); s = s / 1024 {
+	for s = float64(size); s >= byteBiStep && i < len(fsizes); s = s / byteBiStep {
 		i++
 	}
 	if i < 0 {
 		return fmt.Sprintf("%d B", int(s))
 	}
 	return fmt.Sprintf("%.2f %cB", s, fsizes[i])
+}
+
+// FileSizeNum returns a calculated data size in bytes, kilobytes etc.
+//
+// Calculations aren't the same as FileSize does. It is commonly used by ProgressReader.
+func FileSizeNum(size float64) (float64, byte) {
+	var s float64
+	i := -1
+	for s = size; s >= byteStep && i < len(fsizes); s = s / byteStep {
+		i++
+	}
+	if i < 0 {
+		return s, 0
+	}
+	if i >= len(fsizes) {
+		i = len(fsizes) - 1
+	}
+	return s, fsizes[i]
 }
 
 // FindJava checks if Java is installed.
