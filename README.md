@@ -1,6 +1,7 @@
 # MCPM - Minecraft Package Manager
 [![Build Status](https://travis-ci.org/Szewek/mcpm.svg?branch=master)](https://travis-ci.org/Szewek/mcpm)
 [![GoDoc](https://godoc.org/github.com/Szewek/mcpm?status.svg)](https://godoc.org/github.com/Szewek/mcpm)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Szewek/mcpm)](https://goreportcard.com/report/github.com/Szewek/mcpm)
 
 MCPM is a package manager AND A LIBRARY, that lets you manage mods, modpacks, world saves and resource packs. It's all written in [Go](https://golang.org/).
 You can use this as a server command-line tool or create whole new tool using MCPM as a library.
