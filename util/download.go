@@ -15,8 +15,8 @@ type (
 		ShouldUnpack bool
 	}
 	ProjectInfo struct {
-		ID, Name, Type string
-		Files          []FileInfo
+		ID, Name, Title, Type string
+		Files                 []FileInfo
 	}
 	FileInfo struct {
 		ID, Name, Release, MCVersion string
@@ -121,6 +121,8 @@ func GetCurseProjectInfo(s string) *ProjectInfo {
 	ht, hte := http.Get(ur)
 	defer MustClose(ht.Body)
 	Must(hte)
+	url := ht.Request.URL
+	pn := url.Path[strings.LastIndexByte(url.Path, '/')+1:]
 	doc, doce := goquery.NewDocumentFromResponse(ht)
 	Must(doce)
 	tit := doc.Find("h1.project-title a .overflow-tip").Text()
@@ -148,5 +150,5 @@ func GetCurseProjectInfo(s string) *ProjectInfo {
 		tid := na.AttrOr("href", "")
 		xfi[i] = FileInfo{tid[strings.LastIndexByte(tid, '/')+1:], na.Text(), nt.Text(), nv.Text()}
 	})
-	return &ProjectInfo{idn, tit, cat[1:], xfi}
+	return &ProjectInfo{idn, pn, tit, cat[1:], xfi}
 }

@@ -14,7 +14,7 @@ func project(mo *ModeOptions) {
 		return
 	}
 	fmt.Printf("Project %#v information:\n", pn)
-	fmt.Printf(" ID: %s\n Name: %s\n Type: %s\n Newest file: %s\n", xpi.ID, xpi.Name, xpi.Type, xpi.Files[0].Name)
+	fmt.Printf(" ID: %s\n Name: %s (%s)\n Type: %s\n Newest file: %s\n", xpi.ID, xpi.Title, xpi.Name, xpi.Type, xpi.Files[0].Name)
 }
 
 func init() {

@@ -68,7 +68,7 @@ func betterGet(mo *ModeOptions) {
 	pn := mo.Args[0]
 	if cpi := util.GetCurseProjectInfo(pn); cpi != nil {
 		if len(cpi.Files) > 0 {
-			fn, pr, hte := util.DownloadPackageFile(cpi.Type, cpi.ID, pn, cpi.Files[0].ID)
+			fn, pr, hte := util.DownloadPackageFile(cpi.Type, cpi.ID, cpi.Name, cpi.Files[0].ID)
 			util.Must(hte)
 			defer util.MustClose(pr)
 			fmt.Printf("Do you want to download %#v? [y|N] ", fn)
@@ -96,11 +96,11 @@ func betterGet(mo *ModeOptions) {
 				fmt.Println("This package should be unpacked in newer versions.")
 				if cpi.Type == "modpacks" {
 					helper.NewModPackHelper(sav).Unpack()
-					fmt.Printf("Successfully installed modpack %#v\n", cpi.Name)
+					fmt.Printf("Successfully installed modpack %#v\n", cpi.Title)
 				} else if cpi.Type == "worlds" {
 					svh := helper.NewSaveHelper(sav)
 					svh.UnpackAll()
-					fmt.Printf("Successfully installed world save %#v\n", cpi.Name)
+					fmt.Printf("Successfully installed world save %#v\n", cpi.Title)
 				}
 			}
 		} else {
