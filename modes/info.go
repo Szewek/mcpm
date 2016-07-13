@@ -10,8 +10,9 @@ import (
 
 type (
 	downloadInfo struct {
-		Created_at, Name, Type string
-		Id                     int
+		CreatedAt  string `json:"Created_at"`
+		Name, Type string
+		Id         int
 	}
 	packageInfo struct {
 		Authors  []string
@@ -36,7 +37,7 @@ func info(mo *ModeOptions) {
 		for k, v := range pi.Versions {
 			fmt.Printf("  %s:\n", k)
 			for i := 0; i < len(v); i++ {
-				fmt.Printf("    %s; %s (%d) (%s)\n", v[i].Name, v[i].Type, v[i].Id, v[i].Created_at)
+				fmt.Printf("    %s; %s (%d) (%s)\n", v[i].Name, v[i].Type, v[i].Id, v[i].CreatedAt)
 			}
 		}
 	}

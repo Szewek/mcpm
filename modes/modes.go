@@ -13,33 +13,29 @@ type (
 		Verbose  bool
 		Args     []string
 	}
+	// ModeCommand provides functions to manage running mode commands.
 	ModeCommand interface {
 		CanRun() bool
 		Run(*ModeOptions)
 	}
 	// Mode contains functions needed in specific order. (EXPERIMENTAL)
 	Mode struct {
-		Func      func(*Mode, *ModeOptions)
-		Usage     string
-		RunBefore *Mode
-		RunAfter  *Mode
+		Func  func(*Mode, *ModeOptions)
+		Usage string
 	}
 	// ModeList contains modes associated with unique name.
 	ModeList map[string]func(*ModeOptions)
 )
 
+// CanRun checks if a mode is ready to run.
 func (m *Mode) CanRun() bool {
 	return m.Func != nil
 }
+
+// Run launches mode function.
 func (m *Mode) Run(mo *ModeOptions) {
-	if mb := m.RunBefore; mb != nil {
-		mb.Run(mo)
-	}
 	if m.CanRun() {
 		m.Func(m, mo)
-	}
-	if ma := m.RunAfter; ma != nil {
-		ma.Run(mo)
 	}
 }
 

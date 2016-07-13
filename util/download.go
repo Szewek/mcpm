@@ -41,6 +41,12 @@ var (
 		3: {"resourcepacks", false},
 		1: {"saves", true},
 	}
+	pkgTypeOptions = map[string]PackageOptions{
+		"mc-mods":       {"mods", false},
+		"modpacks":      {".", true},
+		"texture-packs": {"resourcepacks", false},
+		"worlds":        {"saves", true},
+	}
 )
 
 // DownloadPackage allows to download packages.
@@ -50,6 +56,23 @@ func DownloadPackage(typ int, pid int, name string, fid int) (string, io.ReadClo
 	var us2 string
 	if us2 = "latest"; fid != -1 {
 		us2 = fmt.Sprintf("%d/download", fid)
+	}
+	download := fmt.Sprint(us, us2)
+	ht, hte := http.Get(download)
+	if hte != nil {
+		return "", nil, hte
+	}
+	fname := ht.Request.URL.Path
+	fname = fname[strings.LastIndex(fname, "/")+1:]
+	return fname, NewProgressReader(ht.Body, uint64(ht.ContentLength), fmt.Sprintf("Downloading %#v (package %#v)...", fname, name)), nil
+}
+
+// DownloadPackageFile does exactly the same as DownloadPackage, but accepts strings as arguments
+func DownloadPackageFile(typ, pid, name, fid string) (string, io.ReadCloser, error) {
+	us := fmt.Sprintf("http://minecraft.curseforge.com/%s/%s-%s/files/", typ, pid, name)
+	var us2 string
+	if us2 = "latest"; fid != "" {
+		us2 = fmt.Sprint(fid, "/download")
 	}
 	download := fmt.Sprint(us, us2)
 	ht, hte := http.Get(download)
@@ -80,6 +103,12 @@ func DownloadPackageInfo(typ int, pid int, name string) (io.ReadCloser, error) {
 
 func GetPackageOptions(typ int) *PackageOptions {
 	if k, g := pkgOptions[typ]; g {
+		return &k
+	}
+	return &PackageOptions{".", false}
+}
+func GetPackageOptionsB(typ string) *PackageOptions {
+	if k, g := pkgTypeOptions[typ]; g {
 		return &k
 	}
 	return &PackageOptions{".", false}
