@@ -9,6 +9,7 @@ import (
 // ReadGobGzip reads gzipped and encoded with gob data from a file and decodes it.
 func ReadGobGzip(file string, v interface{}) error {
 	f, fe := os.OpenFile(GetHomeDir()+file, os.O_RDONLY, 0)
+	defer f.Close()
 	if fe != nil {
 		return fe
 	}
@@ -24,6 +25,7 @@ func ReadGobGzip(file string, v interface{}) error {
 // WriteGobGzip writes gzipped and encoded with gob data to a file.
 func WriteGobGzip(file string, v interface{}) error {
 	f, fe := os.OpenFile(GetHomeDir()+file, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 438)
+	defer f.Close()
 	if fe != nil {
 		return fe
 	}

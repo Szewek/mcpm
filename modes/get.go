@@ -7,6 +7,7 @@ import (
 
 	"github.com/Szewek/mcpm/database"
 	"github.com/Szewek/mcpm/helper"
+	"github.com/Szewek/mcpm/mcpmdb"
 	"github.com/Szewek/mcpm/util"
 )
 
@@ -63,15 +64,13 @@ func get(mo *ModeOptions) {
 		fmt.Println("What is that package?")
 	}
 }
-
 func betterGet(mo *ModeOptions) {
 	pn := mo.Args[0]
-	if cpi := util.GetCurseProjectInfo(pn); cpi != nil {
-		if len(cpi.Files) > 0 {
-			fn, pr, hte := util.DownloadPackageFile(cpi.Type, cpi.ID, cpi.Name, cpi.Files[0].ID)
-			util.Must(hte)
-			defer util.MustClose(pr)
-			fmt.Printf("Do you want to download %#v? [y|N] ", fn)
+	defer mcpmdb.Close()
+	if pkg := mcpmdb.GetPackage(pn); pkg != nil {
+		if fl := pkg.GetFileList(); fl != nil {
+			pf := fl.GetLatest()
+			fmt.Printf("Do you want to download %#v? [y|N] ", pf.Name)
 			r := []byte{}
 			_, se := fmt.Scanln(&r)
 			util.Must(se)
@@ -83,26 +82,7 @@ func betterGet(mo *ModeOptions) {
 				fmt.Println("Cancelled file download.")
 				return
 			}
-			pkgo := util.GetPackageOptionsB(cpi.Type)
-			util.Must(util.MkDirIfNotExist(pkgo.Dir))
-			sav := fmt.Sprintf("%s/%s", pkgo.Dir, fn)
-			f, fe := os.OpenFile(sav, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 438)
-			util.Must(fe)
-			defer util.MustClose(f)
-			_, ce := io.Copy(f, pr)
-			util.Must(ce)
-			fmt.Printf("Successfully saved to \"%s\"\n", sav)
-			if pkgo.ShouldUnpack {
-				fmt.Println("This package should be unpacked in newer versions.")
-				if cpi.Type == "modpacks" {
-					helper.NewModPackHelper(sav).Unpack()
-					fmt.Printf("Successfully installed modpack %#v\n", cpi.Title)
-				} else if cpi.Type == "worlds" {
-					svh := helper.NewSaveHelper(sav)
-					svh.UnpackAll()
-					fmt.Printf("Successfully installed world save %#v\n", cpi.Title)
-				}
-			}
+			pf.Download()
 		} else {
 			fmt.Println("Package exists but has no files to download.")
 		}

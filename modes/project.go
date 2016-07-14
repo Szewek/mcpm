@@ -3,18 +3,19 @@ package modes
 import (
 	"fmt"
 
-	"github.com/Szewek/mcpm/util"
+	"github.com/Szewek/mcpm/mcpmdb"
 )
 
 func project(mo *ModeOptions) {
 	pn := mo.Args[0]
-	xpi := util.GetCurseProjectInfo(pn)
-	if xpi == nil {
+	pkg := mcpmdb.GetPackage(pn)
+	defer mcpmdb.Close()
+	if pkg == nil {
 		fmt.Printf("Project %#v doesn't exist!\n", pn)
 		return
 	}
 	fmt.Printf("Project %#v information:\n", pn)
-	fmt.Printf(" ID: %s\n Name: %s (%s)\n Type: %s\n Newest file: %s\n", xpi.ID, xpi.Title, xpi.Name, xpi.Type, xpi.Files[0].Name)
+	pkg.PrintInfo()
 }
 
 func init() {
