@@ -27,7 +27,7 @@ type (
 
 // PrintInfo prints information about package.
 func (pkg *MCPMPackage) PrintInfo() {
-	fmt.Printf(" ID: %s\n Name: %s (%s)\n Type: %s\n", pkg.id, pkg.title, pkg.name, pkg.ptype)
+	fmt.Printf(" ID: %d\n Name: %s (%s)\n Type: %s\n", pkg.id, pkg.title, pkg.name, pkg.ptype)
 }
 
 // GetFileList creates list of files available for download.
