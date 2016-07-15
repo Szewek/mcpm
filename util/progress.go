@@ -14,11 +14,11 @@ const (
 type (
 	// ProgressReader is an io.ReadCloser which outputs progress in a terminal.
 	ProgressReader struct {
-		r       io.Reader
-		l, c, t uint64
-		st, n   time.Time
-		intro   string
-		b       []byte
+		r     io.Reader
+		c, t  uint64
+		st, n time.Time
+		intro string
+		b     []byte
 	}
 )
 

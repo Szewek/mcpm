@@ -1,3 +1,4 @@
+// Package database helps maintaining Minecraft resources available at Curse CDN
 package database
 
 import (
@@ -37,7 +38,7 @@ var (
 func GetDatabase() Database {
 	if !dbset {
 		if er := util.ReadGobGzip(dbFile, db); er != nil {
-			UpdateDatabase(false)
+			updateDatabase(false)
 		}
 	}
 	return db

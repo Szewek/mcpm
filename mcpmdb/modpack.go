@@ -1,4 +1,4 @@
-package helper
+package mcpmdb
 
 import (
 	"archive/zip"
@@ -6,13 +6,14 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 
-	"github.com/Szewek/mcpm/database"
 	"github.com/Szewek/mcpm/util"
 )
 
 type (
+	// ModPackHelper provides downloading mods and unpacking files.
 	ModPackHelper interface {
 		Unpack()
 	}
@@ -74,39 +75,25 @@ func (mph *modpackhelper) readinfo() {
 }
 func (mph *modpackhelper) Unpack() {
 	mph.readinfo()
+	buf := make([]byte, 32*1024)
 	if mph.filledinfo {
-		db := database.GetDatabase()
 		for i := 0; i < len(mph.info.Files); i++ {
+			pid := strconv.FormatInt(int64(mph.info.Files[i].PID), 10)
 			fid := mph.info.Files[i].FID
-			pkg := db.Packages().Get(mph.info.Files[i].PID)
-
+			pkg := GetPackage(pid)
 			if pkg == nil {
-				fmt.Printf("Package with ID %d is missing", mph.info.Files[i].PID)
+				fmt.Printf("Package with ID %s is missing!\n", pid)
 				continue
 			}
-
-			fn, pr, hte := util.DownloadPackage(pkg.Type, pkg.ID, pkg.Name, fid)
-			util.Must(hte)
-			defer util.MustClose(pr)
-
-			pkgo := util.GetPackageOptions(pkg.Type)
-			util.Must(util.MkDirIfNotExist(pkgo.Dir))
-
-			sav := fmt.Sprintf("%s/%s", pkgo.Dir, fn)
-			f, fe := os.Create(sav)
-			util.Must(fe)
-			defer util.MustClose(f)
-
-			_, ce := io.Copy(f, pr)
-			util.Must(ce)
+			pkg.DownloadFileWithID(strconv.FormatInt(int64(fid), 10), buf)
 		}
 
 		z, ze := zip.OpenReader(mph.filename)
 		util.Must(ze)
 		defer util.MustClose(z)
 
+		ov := mph.info.Overrides + "/"
 		for i := 0; i < len(z.File); i++ {
-			ov := mph.info.Overrides + "/"
 			ix := strings.Index(z.File[i].Name, ov)
 			if ix != -1 {
 				fln := z.File[i].Name[ix+len(ov):]
@@ -123,7 +110,7 @@ func (mph *modpackhelper) Unpack() {
 					util.Must(fe)
 					defer util.MustClose(f)
 
-					_, ce := io.Copy(f, pr)
+					_, ce := io.CopyBuffer(f, pr, buf)
 					util.Must(ce)
 				}
 			}
@@ -131,6 +118,7 @@ func (mph *modpackhelper) Unpack() {
 	}
 }
 
+// NewModPackHelper creates a helper for mod pack with a specified file name.
 func NewModPackHelper(filename string) ModPackHelper {
 	return &modpackhelper{filename, false, nil}
 }

@@ -46,8 +46,7 @@ type (
 	}
 )
 
-//UpdateDatabase gets information from Curse CDN server and puts them in a database
-func UpdateDatabase(verbose bool) {
+func updateDatabase(verbose bool) {
 	fmt.Println("Updating database...")
 	resp, hte := http.Get(remoteURL)
 	defer resp.Body.Close()

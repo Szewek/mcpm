@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"runtime"
 
 	"github.com/Szewek/mcpm/modes"
 )
@@ -28,4 +29,13 @@ func main() {
 		m = "help"
 	}
 	modes.LaunchMode(m)
+	measureMemStats()
+}
+
+func measureMemStats() {
+	defer runtime.GOMAXPROCS(runtime.GOMAXPROCS(1))
+	var ms runtime.MemStats
+	runtime.ReadMemStats(&ms)
+	fmt.Println("Total allocs: ", ms.Mallocs)
+	fmt.Println("Total frees: ", ms.Frees)
 }

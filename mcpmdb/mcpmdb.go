@@ -1,7 +1,7 @@
 package mcpmdb
 
 import (
-	"encoding/gob"
+	"encoding/binary"
 	"fmt"
 	"net/http"
 	"os"
@@ -16,9 +16,10 @@ const fileName = "v05.mcpmdb"
 
 type (
 	mcpmdbImpl struct {
-		fn     string
-		opened bool
-		r, w   map[string]*MCPMPackage
+		fn string
+		o  bool
+		r  map[string]*MCPMPackage
+		a  []*MCPMPackage
 	}
 	// MCPMPackage represents a Minecraft package to download
 	MCPMPackage struct {
@@ -30,22 +31,19 @@ type (
 var db = &mcpmdbImpl{
 	fn: util.GetHomeDir() + fileName,
 	r:  map[string]*MCPMPackage{},
-	w:  map[string]*MCPMPackage{},
+	a:  make([]*MCPMPackage, 0, 4),
 }
 
 // GetPackage finds a package by a given name.
 // If package doesn't exist in database, then downloads and saves information about new package.
 func GetPackage(name string) *MCPMPackage {
-	if !db.opened {
+	if !db.o {
 		open(db.fn)
 	}
 	if pkg, ok := db.r[name]; ok {
 		return pkg
 	}
-	if pkg, ok := db.w[name]; ok {
-		return pkg
-	}
-	ur := fmt.Sprintf(util.CurseForgeURL, name)
+	ur := fmt.Sprintf("http://minecraft.curseforge.com/projects/%s", name)
 	ht, hte := http.Get(ur)
 	if hte != nil {
 		return nil
@@ -67,61 +65,64 @@ func GetPackage(name string) *MCPMPackage {
 		return nil
 	}
 	pkg := &MCPMPackage{nid, pn, tit, cat[1:]}
-	db.w[pn] = pkg
-	db.w[idn] = pkg
+	db.r[pn] = pkg
+	db.r[idn] = pkg
+	db.a = append(db.a, pkg)
 	return pkg
 }
 func open(fname string) {
-	db.opened = true
+	db.o = true
 	f, fe := os.OpenFile(fname, os.O_RDONLY, 0)
 	defer f.Close()
-	if fe != nil {
+	if os.IsNotExist(fe) {
 		return
 	}
-	gb := gob.NewDecoder(f)
+	util.Must(fe)
+	be := binary.BigEndian
+	fpb := make([]byte, 20)
 	var rp *MCPMPackage
-	var eof error
 	for {
-		rp = new(MCPMPackage)
-		eof = gb.Decode(rp)
-		if eof != nil {
+		_, rer := f.Read(fpb)
+		if rer != nil {
 			break
 		}
+		rp = new(MCPMPackage)
+		rp.id = be.Uint64(fpb)
+		ln := be.Uint32(fpb[8:])
+		lt := be.Uint32(fpb[12:])
+		lp := be.Uint32(fpb[16:])
+		xb := make([]byte, ln+lt+lp)
+		_, rer = f.Read(xb)
+		util.Must(rer)
+		rp.name = string(xb[:ln])
+		rp.title = string(xb[ln : ln+lt])
+		rp.ptype = string(xb[ln+lt:])
 		db.r[rp.name] = rp
 		db.r[strconv.FormatUint(rp.id, 10)] = rp
 	}
 }
 
 // Close checks if a database needs to be updated before application finishes.
-func Close() error {
+func Close() {
 	f, fe := os.OpenFile(db.fn, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-	defer f.Close()
-	if fe != nil {
-		return fe
+	defer util.MustClose(f)
+	util.Must(fe)
+	for _, v := range db.a {
+		ln := len(v.name)
+		lt := len(v.title)
+		lp := len(v.ptype)
+		tot := 20 + ln + lt + lp
+		b := make([]byte, tot)
+		be := binary.BigEndian
+		bp := 20
+		be.PutUint64(b, v.id)
+		be.PutUint32(b[8:], uint32(ln))
+		be.PutUint32(b[12:], uint32(lt))
+		be.PutUint32(b[16:], uint32(lp))
+		bp += copy(b[bp:], v.name)
+		bp += copy(b[bp:], v.title)
+		bp += copy(b[bp:], v.ptype)
+		_, wer := f.Write(b)
+		util.Must(wer)
 	}
-	a := make([]*MCPMPackage, len(db.w))
-	ap := 0
-LOOP1:
-	for _, v := range db.w {
-		for i := 0; i < ap; i++ {
-			if a[i] == v {
-				continue LOOP1
-			}
-		}
-		a[ap] = v
-		ap++
-	}
-	a = a[:ap]
-	gb := gob.NewEncoder(f)
-	for _, v := range a {
-		gbe := gb.Encode(v)
-		if gbe != nil {
-			return gbe
-		}
-	}
-	return nil
-}
-
-func init() {
-	gob.Register(&MCPMPackage{})
 }

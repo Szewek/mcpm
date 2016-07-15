@@ -9,9 +9,9 @@ import (
 type (
 	// ModeOptions contains all flags and arguments set in a command.
 	ModeOptions struct {
-		ModeName string
-		Verbose  bool
-		Args     []string
+		ModeName         string
+		Verbose, Confirm bool
+		Args             []string
 	}
 	// ModeCommand provides functions to manage running mode commands.
 	ModeCommand interface {
@@ -59,6 +59,7 @@ func LaunchMode(m string) {
 		flg.PrintDefaults()
 	}
 	flg.BoolVar(&(mo.Verbose), "v", false, "Verbose (WIP)")
+	flg.BoolVar(&(mo.Confirm), "y", false, "Confirm")
 	if len(os.Args) >= 3 {
 		flg.Parse(os.Args[2:])
 		mo.Args = flg.Args()
