@@ -3,7 +3,6 @@ package mcpmdb
 import (
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -31,8 +30,7 @@ func (pkg *MCPMPackage) PrintInfo() {
 
 // GetFileList creates list of files available for download.
 func (pkg *MCPMPackage) GetFileList() *MCPMFileList {
-	cur := fmt.Sprintf("http://curse.com/project/%s", strconv.FormatUint(pkg.id, 10))
-	cht, chte := http.Get(cur)
+	cht, chte := get(util.DirPathJoin("http://curse.com/project", strconv.FormatUint(pkg.id, 10)))
 	defer util.MustClose(cht.Body)
 	defer util.Must(chte)
 	cdoc, cdoce := goquery.NewDocumentFromResponse(cht)
@@ -42,14 +40,15 @@ func (pkg *MCPMPackage) GetFileList() *MCPMFileList {
 		return nil
 	}
 	fl := &MCPMFileList{make([]*MCPMFile, list.Length())}
-	list.Each(func(i int, n *goquery.Selection) {
+	for i := range list.Nodes {
+		n := list.Eq(i)
 		td := n.Find("td")
 		na := td.Eq(0).Find("a")
 		nt := td.Eq(1)
 		nv := td.Eq(2)
 		tid := na.AttrOr("href", "")
 		fl.a[i] = &MCPMFile{tid[strings.LastIndexByte(tid, '/')+1:], na.Text(), nt.Text(), nv.Text()}
-	})
+	}
 	return fl
 }
 
@@ -60,24 +59,26 @@ func (pkg *MCPMPackage) DownloadFileWithID(fid string, buf []byte) {
 	}
 	po := util.GetPackageOptionsB(pkg.ptype)
 	util.Must(util.MkDirIfNotExist(po.Dir))
-	us := fmt.Sprintf("http://minecraft.curseforge.com/%s/%d-%s/files/%s/download", pkg.ptype, pkg.id, pkg.name, fid)
-	ht, hte := http.Get(us)
+	us := fmt.Sprintf("http://minecraft.curseforge.com/projects/%s/files/%s/download", pkg.name, fid)
+	ht, hte := get(us)
+	defer util.MustClose(ht.Body)
 	util.Must(hte)
 	fname := ht.Request.URL.Path
 	fname = fname[strings.LastIndex(fname, "/")+1:]
-	sav := fmt.Sprintf("%s/%s", po.Dir, fname)
+	sav := util.DirPathJoin(po.Dir, fname)
 	sf, sfe := os.OpenFile(sav, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
 	util.Must(sfe)
 	defer util.MustClose(sf)
-	pr := util.NewProgressReader(ht.Body, uint64(ht.ContentLength), fmt.Sprintf("Downloading \"%s\": %s", pkg.name, fname))
-	defer util.MustClose(pr)
+	fmt.Printf("Downloading \"%s\": %s\n", pkg.name, fname)
+	pr := util.NewReadProgress(ht.Body, uint64(ht.ContentLength))
 	_, ce := io.CopyBuffer(sf, pr, buf)
 	util.Must(ce)
+	util.MustClose(pr)
 	fmt.Printf("Successfully saved to \"%s\"\n", sav)
 	if po.ShouldUnpack {
 		switch pkg.ptype {
 		case "modpacks":
-			NewModPackHelper(sav).Unpack()
+			UnpackModpack(sav)
 			fmt.Printf("Successfully installed modpack %#v\n", pkg.title)
 			break
 		case "worlds":

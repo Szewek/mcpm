@@ -1,3 +1,14 @@
+// Package modes contains all subcommands (called "modes").
+//
+// MCPM starts mode by its name given in a command line.
+//
+// To create a mode. Create new Go source file in this package directory and follow that example:
+//  func anyname(mo *ModeOptions) {
+//      // Do something there
+//  }
+//  func init() {
+//      registerMode("command-name", anyname);
+//  }
 package modes
 
 import (
@@ -47,7 +58,7 @@ var (
 
 // LaunchMode finds mode by its name and run this with set mode options.
 // If mode is not found, LaunchMode shows usage of command.
-func LaunchMode(m string) {
+func LaunchMode(m string, a []string) {
 	mo := &ModeOptions{}
 	mo.ModeName = m
 	flg.Usage = func() {
@@ -61,7 +72,7 @@ func LaunchMode(m string) {
 	flg.BoolVar(&(mo.Verbose), "v", false, "Verbose (WIP)")
 	flg.BoolVar(&(mo.Confirm), "y", false, "Confirm")
 	if len(os.Args) >= 3 {
-		flg.Parse(os.Args[2:])
+		flg.Parse(a)
 		mo.Args = flg.Args()
 	}
 	if f, ok := (*modelist)[m]; ok {

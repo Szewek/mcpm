@@ -37,8 +37,8 @@ func (sh *savehelper) UnpackAll() {
 			zf, zfe := zi.Open()
 			util.Must(zfe)
 
-			pr := util.NewProgressReader(zf, zi.UncompressedSize64, fmt.Sprintf("Unpacking %#v...", zi.Name))
-			defer util.MustClose(pr)
+			fmt.Printf("Unpacking %#v...\n", zi.Name)
+			pr := util.NewReadProgress(zf, zi.UncompressedSize64)
 
 			f, fe := os.Create(fln)
 			util.Must(fe)
@@ -46,6 +46,8 @@ func (sh *savehelper) UnpackAll() {
 
 			_, ce := io.Copy(f, pr)
 			util.Must(ce)
+			util.MustClose(zf)
+			util.MustClose(pr)
 		}
 	}
 }

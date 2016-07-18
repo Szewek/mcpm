@@ -37,9 +37,8 @@ var (
 // If database doesn't exist it gets updated.
 func GetDatabase() Database {
 	if !dbset {
-		if er := util.ReadGobGzip(dbFile, db); er != nil {
-			updateDatabase(false)
-		}
+		util.ReadGobGzip(dbFile, db)
+		dbset = true
 	}
 	return db
 }

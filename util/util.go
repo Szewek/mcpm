@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -16,10 +17,18 @@ const (
 	errLog     = "\nAN ERROR OCURRED!\n\n=== Go representation of that error ===\n%#v\n\n=== Error message ===\n%s\n-----\n"
 )
 
+func DirPathJoin(d, p string) string {
+	b := make([]byte, len(d)+len(p)+1)
+	copy(b, d)
+	b[len(d)] = '/'
+	copy(b[1+len(d):], p)
+	return string(b)
+}
+
 // Must handles various errors and prints their Go and string values.
 func Must(e error) {
 	if e != nil {
-		fmt.Printf(errLog, e, e.Error())
+		fmt.Fprintf(os.Stderr, errLog, e, e.Error())
 		panic(e)
 	}
 }
@@ -44,18 +53,16 @@ func FileSize(size int64) string {
 
 // FileSizeNum returns a calculated data size in bytes, kilobytes etc.
 //
-// Calculations aren't the same as FileSize does. It is commonly used by ProgressReader.
+// Calculations aren't the same as FileSize does.
 func FileSizeNum(size float64) (float64, byte) {
+	if size < byteStep {
+		return size, 0
+	}
 	var s float64
 	i := -1
-	for s = size; s >= byteStep && i < len(fsizes); s = s / byteStep {
+	for size >= byteStep && i < len(fsizes) {
+		size /= byteStep
 		i++
-	}
-	if i < 0 {
-		return s, 0
-	}
-	if i >= len(fsizes) {
-		i = len(fsizes) - 1
 	}
 	return s, fsizes[i]
 }

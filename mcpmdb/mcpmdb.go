@@ -2,8 +2,6 @@ package mcpmdb
 
 import (
 	"encoding/binary"
-	"fmt"
-	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -43,8 +41,7 @@ func GetPackage(name string) *MCPMPackage {
 	if pkg, ok := db.r[name]; ok {
 		return pkg
 	}
-	ur := fmt.Sprintf("http://minecraft.curseforge.com/projects/%s", name)
-	ht, hte := http.Get(ur)
+	ht, hte := get(util.DirPathJoin("http://minecraft.curseforge.com/projects", name))
 	if hte != nil {
 		return nil
 	}
@@ -121,7 +118,7 @@ func Close() {
 		be.PutUint32(b[16:], uint32(lp))
 		bp += copy(b[bp:], v.name)
 		bp += copy(b[bp:], v.title)
-		bp += copy(b[bp:], v.ptype)
+		copy(b[bp:], v.ptype)
 		_, wer := f.Write(b)
 		util.Must(wer)
 	}

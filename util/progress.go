@@ -3,78 +3,120 @@ package util
 import (
 	"fmt"
 	"io"
+	"os"
+	"sync"
 	"time"
 )
 
 const (
-	loadBarLen = 40
-	updateDur  = time.Duration(200 * time.Millisecond)
+	loadBarLen  = 30
+	floatSecond = float64(time.Second)
+	updateDur   = time.Duration(250) * time.Millisecond
+)
+
+var (
+	barStart = []byte(" [\x1B[33;1m")
+	barEnd   = []byte("\x1B[39;49m] ")
 )
 
 type (
-	// ProgressReader is an io.ReadCloser which outputs progress in a terminal.
-	ProgressReader struct {
-		r     io.Reader
-		c, t  uint64
-		st, n time.Time
-		intro string
-		b     []byte
+	progressRead struct {
+		sync.Mutex
+		r    io.Reader
+		x    time.Duration
+		t, n float64
+		b    []byte
+		c    chan progress
+	}
+	progress struct {
+		t time.Duration
+		n float64
 	}
 )
 
-// Read reads data and updates progress.
-func (pr *ProgressReader) Read(p []byte) (n int, err error) {
-	if pr.c == 0 {
-		pr.st = time.Now()
-		fmt.Println(pr.intro)
-	} else if pr.c > pr.t {
-		return
+func (p *progressRead) listen() {
+	p.Lock()
+	defer p.Unlock()
+	tx := time.NewTicker(updateDur)
+	pl := 9
+	var db byte
+	var ld, ds float64
+	var ldi, i int
+	var f byte = '\r'
+	for x := range p.c {
+		if p.n >= p.t {
+			continue
+		}
+		p.n += x.n
+		p.x += x.t
+		if p.n >= p.t {
+			f = '\n'
+		} else {
+			select {
+			case <-tx.C:
+				break
+			default:
+				continue
+			}
+		}
+		ld = p.n / p.t
+		if ld > 1 {
+			ld = 1
+		}
+		ldi = 9 + int(ld*loadBarLen)
+		if ldi > pl {
+			for i := pl; i < ldi; i++ {
+				p.b[i] = '='
+			}
+			pl = ldi
+		}
+		ds = p.n * floatSecond / float64(p.x)
+		db = ' '
+		if ds >= byteStep {
+			i = 0
+			for ds >= byteStep && i < len(fsizes) {
+				ds /= byteStep
+				i++
+			}
+			db = fsizes[i-1]
+		}
+		ld *= 100
+		os.Stdout.Write(p.b)
+		fmt.Fprintf(os.Stdout, "%6.2f%% %6.2f %cB/s%c", ld, ds, db, f)
 	}
-	n, err = pr.r.Read(p)
-	if n == 0 {
-		return
-	}
-	tn := time.Now()
-	pr.c += uint64(n)
-	ld := float64(pr.c) / float64(pr.t)
-	var f byte
-	if f = '\r'; ld >= 1.0 {
-		f = '\n'
-	}
-	dur := tn.Sub(pr.n)
-	if ld < 1.0 && dur < updateDur {
-		return
-	}
-	pr.n = tn
-	ldi := int(ld * loadBarLen)
-	if ldi > loadBarLen {
-		ldi = loadBarLen
-	} else if ldi < 0 {
-		ldi = 0
-	}
-	for i := 0; i < ldi; i++ {
-		pr.b[i] = '='
-	}
-	dur = tn.Sub(pr.st)
-	ds, db := FileSizeNum(float64(pr.c) / (float64(dur) / float64(time.Second)))
-	fmt.Printf(" [%s] %6.2f%% %7.2f %cB/s%c", pr.b, ld*100.0, ds, db, f)
+	tx.Stop()
+}
+
+func (p *progressRead) Read(b []byte) (n int, err error) {
+	t := time.Now()
+	n, err = p.r.Read(b)
+	p.c <- progress{time.Now().Sub(t), float64(n)}
 	return
 }
 
-// Close checks if given io.Reader is also an io.Closer.
-// If true, it closes.
-func (pr *ProgressReader) Close() error {
-	if rc := pr.r.(io.Closer); rc != nil {
-		return rc.Close()
-	}
+func (p *progressRead) Close() error {
+	close(p.c)
+	p.Lock()
+	defer p.Unlock()
 	return nil
 }
 
-// NewProgressReader returns new ProgressReader.
-func NewProgressReader(r io.Reader, total uint64, intro string) *ProgressReader {
-	pr := &ProgressReader{r: r, t: total, intro: intro, b: make([]byte, loadBarLen)}
-	for i := range pr.b {
-		pr.b[i] = ' '
+// NewReadProgress creates a progress bar for a reader.
+//
+// Read progress must be closed immediatelly after reading operation.
+func NewReadProgress(r io.Reader, total uint64) io.ReadCloser {
+	b := make([]byte, 19+loadBarLen)
+	copy(b, barStart)
+	for i := 9; i < loadBarLen+9; i++ {
+		b[i] = ' '
 	}
-	return pr
+	copy(b[loadBarLen+9:], barEnd)
+	p := &progressRead{
+		r: r,
+		t: float64(total),
+		b: b,
+		c: make(chan progress),
+	}
+	go p.listen()
+	return p
 }

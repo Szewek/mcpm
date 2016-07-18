@@ -48,7 +48,8 @@ func DownloadPackageInfo(typ int, pid int, name string) (io.ReadCloser, error) {
 	if hte != nil {
 		return nil, hte
 	}
-	return NewProgressReader(ht.Body, uint64(ht.ContentLength), fmt.Sprintf("Downloading %#v information...", fln)), nil
+	fmt.Printf("Downloading %#v information...\n", fln)
+	return NewReadProgress(ht.Body, uint64(ht.ContentLength)), nil
 }
 
 func GetPackageOptions(typ int) *PackageOptions {

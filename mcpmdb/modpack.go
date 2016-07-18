@@ -7,16 +7,11 @@ import (
 	"io"
 	"os"
 	"strconv"
-	"strings"
 
 	"github.com/Szewek/mcpm/util"
 )
 
 type (
-	// ModPackHelper provides downloading mods and unpacking files.
-	ModPackHelper interface {
-		Unpack()
-	}
 	packages struct {
 		PID int `json:"projectID"`
 		FID int `json:"fileID"`
@@ -44,81 +39,63 @@ type (
 	}
 )
 
-func (mph *modpackhelper) readinfo() {
-	if mph.info != nil {
-		return
-	}
-	mph.info = &modpackmanifest{}
-
-	z, ze := zip.OpenReader(mph.filename)
+// UnpackModpack downloads mods and unpacks file contents.
+func UnpackModpack(fname string) {
+	z, ze := zip.OpenReader(fname)
 	util.Must(ze)
 	defer util.MustClose(z)
-
+	info := new(modpackmanifest)
 	var zf *zip.File
-	for i := 0; i < len(z.File); i++ {
-		if z.File[i].Name == "manifest.json" {
-			zf = z.File[i]
+	ov := "overrides/"
+	buf := make([]byte, 32*1024)
+	for _, zf = range z.File {
+		if zf.Name == "manifest.json" {
+			ozf, oze := zf.Open()
+			util.Must(oze)
+			util.Must(json.NewDecoder(ozf).Decode(info))
+			util.MustClose(ozf)
 			break
 		}
 	}
-	if zf == nil {
-		return
-	}
-
-	ozf, oze := zf.Open()
-	util.Must(oze)
-	defer util.MustClose(ozf)
-
-	jd := json.NewDecoder(ozf)
-	util.Must(jd.Decode(mph.info))
-	mph.filledinfo = true
-}
-func (mph *modpackhelper) Unpack() {
-	mph.readinfo()
-	buf := make([]byte, 32*1024)
-	if mph.filledinfo {
-		for i := 0; i < len(mph.info.Files); i++ {
-			pid := strconv.FormatInt(int64(mph.info.Files[i].PID), 10)
-			fid := mph.info.Files[i].FID
+	if info != nil {
+		ov = info.Overrides + "/"
+		for i, xf := range info.Files {
+			pid := strconv.FormatInt(int64(xf.PID), 10)
 			pkg := GetPackage(pid)
 			if pkg == nil {
 				fmt.Printf("Package with ID %s is missing!\n", pid)
 				continue
 			}
-			pkg.DownloadFileWithID(strconv.FormatInt(int64(fid), 10), buf)
+			fmt.Printf("%d / %d ", i, len(info.Files))
+			pkg.DownloadFileWithID(strconv.FormatInt(int64(xf.FID), 10), buf)
 		}
-
-		z, ze := zip.OpenReader(mph.filename)
-		util.Must(ze)
-		defer util.MustClose(z)
-
-		ov := mph.info.Overrides + "/"
-		for i := 0; i < len(z.File); i++ {
-			ix := strings.Index(z.File[i].Name, ov)
-			if ix != -1 {
-				fln := z.File[i].Name[ix+len(ov):]
-				if z.File[i].FileInfo().IsDir() {
-					util.MkDirIfNotExist(fln)
-				} else {
-					zf, zfe := z.File[i].Open()
-					util.Must(zfe)
-
-					pr := util.NewProgressReader(zf, z.File[i].UncompressedSize64, fmt.Sprintf("Unpacking %#v...", fln))
-					defer util.MustClose(pr)
-
-					f, fe := os.Create(fln)
-					util.Must(fe)
-					defer util.MustClose(f)
-
-					_, ce := io.CopyBuffer(f, pr, buf)
-					util.Must(ce)
-				}
+	}
+	lov := len(ov)
+	for _, zf = range z.File {
+		if len(zf.Name) < lov {
+			continue
+		}
+		n := zf.Name[:lov]
+		if n == ov {
+			n = zf.Name[lov:]
+			if n == "" {
+				continue
+			}
+			if zf.FileInfo().IsDir() {
+				util.Must(util.MkDirIfNotExist(n))
+			} else {
+				xf, xe := zf.Open()
+				util.Must(xe)
+				fmt.Printf("Unpacking %#v...\n", n)
+				pr := util.NewReadProgress(xf, zf.UncompressedSize64)
+				f, fe := os.Create(n)
+				util.Must(fe)
+				_, ce := io.CopyBuffer(f, pr, buf)
+				util.Must(ce)
+				util.MustClose(f)
+				util.MustClose(xf)
+				pr.Close()
 			}
 		}
 	}
-}
-
-// NewModPackHelper creates a helper for mod pack with a specified file name.
-func NewModPackHelper(filename string) ModPackHelper {
-	return &modpackhelper{filename, false, nil}
 }

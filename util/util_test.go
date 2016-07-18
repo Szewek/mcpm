@@ -15,7 +15,11 @@ type (
 	noReader byte
 )
 
-const bufSize = 4096
+const (
+	bufSize = 4096
+	stra    = "/system/directory/catalog"
+	strb    = "filename.extension"
+)
 
 func (nr *noReader) Read(b []byte) (int, error) {
 	return len(b), nil
@@ -46,9 +50,12 @@ func BenchmarkProgress(b *testing.B) {
 	tot := uint64(b.N * bufSize)
 	buf := make([]byte, bufSize)
 	b.SetBytes(bufSize)
-	prog := util.NewProgressReader(new(noReader), tot, fmt.Sprintf("TESTING %d", b.N))
+	fmt.Printf("TESTING %d\n", b.N)
+	prog := util.NewReadProgress(new(noReader), tot)
+	defer util.MustClose(prog)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		prog.Read(buf)
 	}
+	b.StopTimer()
 }

@@ -2,9 +2,12 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"log"
 	"os"
 	"runtime"
+	"runtime/pprof"
 
 	"github.com/Szewek/mcpm/modes"
 )
@@ -20,16 +23,44 @@ XXXXXXXXXX
     +-
 `
 
+var (
+	cpuprof = flag.String("cpuprof", "", "CPU Profile")
+	memprof = flag.String("memprof", "", "Memory Profile")
+)
+
 func main() {
+	flag.Parse()
 	fmt.Print(intro)
+	if *cpuprof != "" {
+		fmt.Println("CPU profile is ON")
+		f, err := os.Create(*cpuprof)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
+	launchApp(flag.Args())
+	if *memprof != "" {
+		fmt.Println("Memory profile is ON")
+		f, err := os.Create(*memprof)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.WriteHeapProfile(f)
+		f.Close()
+		return
+	}
+}
+
+func launchApp(args []string) {
 	var m string
-	if len(os.Args) >= 2 {
-		m = os.Args[1]
+	if len(args) > 0 {
+		m = args[0]
 	} else {
 		m = "help"
 	}
-	modes.LaunchMode(m)
-	measureMemStats()
+	modes.LaunchMode(m, args[1:])
 }
 
 func measureMemStats() {
