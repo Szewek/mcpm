@@ -2,6 +2,7 @@
 [![Build Status](https://travis-ci.org/Szewek/mcpm.svg?branch=master)](https://travis-ci.org/Szewek/mcpm)
 [![GoDoc](https://godoc.org/github.com/Szewek/mcpm?status.svg)](https://godoc.org/github.com/Szewek/mcpm)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Szewek/mcpm)](https://goreportcard.com/report/github.com/Szewek/mcpm)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FSzewek%2Fmcpm.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FSzewek%2Fmcpm?ref=badge_shield)
 
 MCPM is a package manager AND A LIBRARY, that lets you manage mods, modpacks, world saves and resource packs. It's all written in [Go](https://golang.org/).
 You can use this as a server command-line tool or create whole new tool using MCPM as a library.
@@ -52,3 +53,7 @@ Command | Description
 - [ ] Getting package for appropriate version of Minecraft
 - [x] Unpacking modpacks and world saves
 - [ ] Creating server and client instances
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FSzewek%2Fmcpm.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FSzewek%2Fmcpm?ref=badge_large)
