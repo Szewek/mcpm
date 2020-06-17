@@ -1,3 +1,5 @@
+# This project is abandoned. Check [MCTool](https://github.com/Szewek/mctool), a successor of MCPM.
+
 # MCPM - Minecraft Package Manager
 [![Build Status](https://travis-ci.org/Szewek/mcpm.svg?branch=master)](https://travis-ci.org/Szewek/mcpm)
 [![GoDoc](https://godoc.org/github.com/Szewek/mcpm?status.svg)](https://godoc.org/github.com/Szewek/mcpm)
